@@ -1,4 +1,4 @@
-function generatePlots(data, mcmcSamples, truePDF)
+function generatePlots(data, mcmcSamples, truePDF, priorPDF)
     % Generating some plots of true sampling and posterior sampling
 
     % Plotting the true samples
@@ -8,7 +8,12 @@ function generatePlots(data, mcmcSamples, truePDF)
         plot(truePDF.mean(1), truePDF.mean(2), 'o');
     hold off
 
-    postMean = (truePDF.mean +  sum(data)) / (size(data, 1) + 1);
+    noData = size(data, 1);
+    postMean = inv(priorPDF.precision + noData * truePDF.precision) * ...
+                (priorPDF.precision * priorPDF.mean' +  ...
+                    truePDF.precision * sum(data)');
+    
+    %postMean = (truePDF.mean +  sum(data)) / (size(data, 1) + 1);
     
     fprintf('True mean: (%f %f)\nPost mean: (%f %f)\n', truePDF.mean(1), ...
                                 truePDF.mean(2), postMean(1), postMean(2));

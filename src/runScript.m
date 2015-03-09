@@ -22,10 +22,11 @@ options = -1 * ones(18, 1);
 options(9) = 0; % false
 
 priorPDF = struct('mean', 0.5 * ones(1, noDims), ...
-                'variance', eye(noDims));
+                'variance', eye(noDims), ...
+                'precision', eye(noDims));
 
 % Generating multiple samples
-noMCMC = 10;
+noMCMC = 100;
 mcmcSamples = zeros(noMCMC, noDims);
 for i = 1:noMCMC
     initGuess = rand(1, noDims);
@@ -36,6 +37,6 @@ for i = 1:noMCMC
 end
 
 % Verify samples
-generatePlots(data, mcmcSamples, truePDF);
+generatePlots(data, mcmcSamples, truePDF, priorPDF);
 %generateTrajectory(data, samples, truePDF);                                                
                                                 
