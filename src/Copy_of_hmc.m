@@ -92,6 +92,7 @@ end
 
 display = options(1);
 if (round(options(5)) == 1)
+%if (round(options(5) == 1))
   persistence = 1;
   % Set alpha to lie in [0, 1)
   alpha = max(0, options(17));
@@ -149,7 +150,7 @@ n = - nomit + 1;
 Eold = feval(f, x, varargin{:});	% Evaluate starting energy.
 nreject = 0;
 if (~persistence | isempty(HMC_MOM))
-  p = randn(1, nparams);		% Initialise momenta at random
+    p = randn(1, nparams);		% Initialise momenta at random
 else
   p = HMC_MOM;				% Initialise momenta from stored state
 end
@@ -161,7 +162,6 @@ while n <= nsamples
   xold = x;		    % Store starting position.
   pold = p;		    % Store starting momenta
   Hold = Eold + 0.5*(p*p'); % Recalculate Hamiltonian as momenta have changed
-
   if ~persistence
     % Choose a direction at random
     if (rand < 0.5)
@@ -175,17 +175,25 @@ while n <= nsamples
 
   % First half-step of leapfrog.
   p = p - 0.5*epsilon*feval(gradf, x, varargin{:});
+  feval(gradf, x, varargin{:})
   x = x + epsilon*p;
   
   % Full leapfrog steps.
   for m = 1 : L - 1
     p = p - epsilon*feval(gradf, x, varargin{:});
     x = x + epsilon*p;
+%     disp('p=')
+%     disp(p)
+%     disp('x=')
+%     disp(x)
   end
 
   % Final half-step of leapfrog.
   p = p - 0.5*epsilon*feval(gradf, x, varargin{:});
-
+%     disp('!p=')
+%     disp(p)
+%     disp('!x=')
+%     disp(x)
   % Now apply Metropolis algorithm.
   Enew = feval(f, x, varargin{:});	% Evaluate new energy.
   p = -p;				% Negate momentum
@@ -200,8 +208,10 @@ while n <= nsamples
     fprintf(1, 'New position is\n');
     disp(x);
   end
-
-  if a > rand(1)			% Accept the new state.
+  rand_var = rand(1);
+  disp([a Hold]);
+  disp(Hnew);
+  if a > rand_var			% Accept the new state.
     Eold = Enew;			% Update energy
     if (display > 0)
       fprintf(1, 'Finished step %4d  Threshold: %g\n', n, a);

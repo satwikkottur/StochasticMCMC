@@ -19,6 +19,10 @@ function likelihood = likelihood(theta, data, priorPDF, truePDF)
     %likelihood = likelihood + ...
     %                sum(diag(shifted * inv(truePDF.variance) * shifted'));
     
-    likelihood = likelihood + sum(0.5 * diag(shifted * truePDF.precision * shifted'));
+    %likelihood = likelihood + sum(0.5 * diag(shifted * truePDF.precision * shifted'));
+    for i = 1:size(data, 1)
+        likelihood = likelihood + 0.5 * shifted(1, :) * truePDF.precision * ...
+                                        shifted(1, :)';
+    end
 end
 
