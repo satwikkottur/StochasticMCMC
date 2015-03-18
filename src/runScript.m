@@ -14,9 +14,6 @@ noSamples = 1000; % Number of samples
 prob = @likelihood;
 gradProb = @gradLikelihood;
 
-% Running hmc
-%[samples, energies, diagn] = hmc(f, x, options, gradf, varargin);
-
 % Initializing the options (manually done checking the code in hmc)
 options = -1 * ones(18, 1);
 options(9) = 0; % false
@@ -31,16 +28,14 @@ priorPDF = struct('mean', truePDF.mean + 0.01 * rand(1, noDims), ...%0.5 * ones(
                 'precision', eye(noDims));
 
 % Generating multiple samples
-%noMCMC = 200;
 noMCMC = 1;
 mcmcSamples = zeros(noMCMC, noDims);
+
 for i = 1:noMCMC
     initGuess = rand(1, noDims);
     [samples, energies, diagn] = hmc(prob, initGuess, options, gradProb, ...
                                                     data, priorPDF, truePDF);
     
-    %mcmcSamples(i, :) = samples(end, :);
-    %mcmcSamples = samples;
     mcmcSamples = samples(1:100:size(samples, 1), :);
 end
 
