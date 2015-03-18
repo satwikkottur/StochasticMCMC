@@ -200,8 +200,8 @@ while n <= nsamples
     fprintf(1, 'New position is\n');
     disp(x);
   end
-
-  if a > rand(1)			% Accept the new state.
+  random_number = rand(1);
+  if a > random_number			% Accept the new state.
     Eold = Enew;			% Update energy
     if (display > 0)
       fprintf(1, 'Finished step %4d  Threshold: %g\n', n, a);
@@ -235,10 +235,10 @@ while n <= nsamples
   n = n + 1;
 end
 
-if (display > 0)
+%if (display > 0)
   fprintf(1, '\nFraction of samples rejected:  %g\n', ...
     nreject/(nsamples));
-end
+%end
 if diagnostics
   diagn.pos = diagn_pos;
   diagn.mom = diagn_mom;
