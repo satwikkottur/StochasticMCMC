@@ -40,6 +40,6 @@ for i = 1:noMCMC
 end
 
 % Verify samples
-generatePlots2(data, mcmcSamples, truePDF, priorPDF, initGuess);
+generatePlots(data, mcmcSamples, truePDF, priorPDF, initGuess);
 %generateTrajectory(data, samples, truePDF);                                                
                                                 
