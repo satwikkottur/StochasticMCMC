@@ -1,4 +1,4 @@
-function gradient = gradLikelihood(theta, data, priorPDF, truePDF)
+function gradient = gradLikelihood(theta, data, priorPDF, truePDF, varargin)
     % Function to compute the gradient given the data, current estimate of
     % theta and prior for theta
     

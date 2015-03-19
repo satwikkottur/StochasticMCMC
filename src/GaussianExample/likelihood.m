@@ -1,10 +1,9 @@
-function likelihood = likelihood(theta, data, priorPDF, truePDF)
+function likelihood = likelihood(theta, data, priorPDF, truePDF, varargin)
     % Finding the likelihood for the Gaussian case
     % Assuming theta to be the parameter value
     % priorPDF(struct) has mean and variance attributes
     
     % Asserting if theta is a row vector
-    assert(isrow(priorPDF.mean));
     assert(isrow(theta));
     
     % Computing the likelihood

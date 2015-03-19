@@ -13,15 +13,11 @@ function generatePlots(data, mcmcSamples, truePDF, priorPDF, initGuess)
                 (priorPDF.precision * priorPDF.mean' +  ...
                     truePDF.precision * sum(data)');
     mle = mean(data)';
-    (priorPDF.precision + noData * truePDF.precision) \ ...
-                (priorPDF.precision * priorPDF.mean' +  ...
-                    truePDF.precision * sum(data)');
     
-    %postMean = (truePDF.mean +  sum(data)) / (size(data, 1) + 1);
+    fprintf('True mean: (%f %f)\n', truePDF.mean(1), truePDF.mean(2));
+    fprintf('Post mean: (%f %f)\n', postMean(1), postMean(2));
+    fprintf('MLE mean : (%f %f)\n', mle(1), mle(2));
     
-    fprintf('True mean: (%f %f)\nPost mean: (%f %f)\n', truePDF.mean(1), ...
-                                truePDF.mean(2), postMean(1), postMean(2));
-    fprintf('mle: (%f %f)\n', mle);
     % Plotting the MCMC samples and posterior
     figure(2); hold all
         plot(mcmcSamples(:, 1), mcmcSamples(:, 2), 'x')
