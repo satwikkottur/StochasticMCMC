@@ -182,7 +182,7 @@ while n <= nsamples
     p = p - epsilon*feval(gradf, x, varargin{:});
     x = x + epsilon*p;
   end
-
+  
   % Final half-step of leapfrog.
   p = p - 0.5*epsilon*feval(gradf, x, varargin{:});
 

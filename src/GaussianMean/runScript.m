@@ -1,11 +1,9 @@
 % Default script to be run for test/debugging purposes
 close all
-
-% Running the Gaussian example
-addpath('GaussianExample/');
+tic;
 
 noDims = 2; % Number of dimensions
-noSamples = 1000; % Number of samples
+noSamples = 10000; % Number of samples
 
 % Create the dataset
 [data, truePDF] = generateDataset(noDims, noSamples); 
@@ -18,7 +16,7 @@ gradProb = @stocGradLikelihood;
 % Initializing the options (manually done checking the code in hmc)
 options = -1 * ones(18, 1);
 options(9) = 0; % false
-options(14) = 50000; % Run for 1000 iterations
+options(14) = 100000; % Run for 50000 iterations
 options(15) = 50; % burn in
 options(7) = 10; % Number of leap steps
 options(1) = 0; % Display 
@@ -33,7 +31,7 @@ noMCMC = 1;
 mcmcSamples = zeros(noMCMC, noDims);
 
 % Infomation for selecting the batches
-batchSize = 10;
+batchSize = 5;
 batchSelect = 1;  % 1 for random and 2 for linear
 batchInfo = struct('size', batchSize, 'select', batchSelect);
 
@@ -49,4 +47,4 @@ end
 % Verify samples
 generatePlots(data, mcmcSamples, truePDF, priorPDF, initGuess);
 %generateTrajectory(data, samples, truePDF);                                                
-                                                
+toc
