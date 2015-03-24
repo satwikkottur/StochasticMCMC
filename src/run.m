@@ -2,7 +2,7 @@
 close all
 tic;
 % Running the Gaussian example
-path = 'GaussianMean/';
+path = 'GaussianMeanL1/';
 %path = 'GaussianVariance/';
 addpath(path);
 
