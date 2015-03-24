@@ -12,7 +12,7 @@ function gradient = stocGradLikelihood(theta, data, meanPrior, batchInfo)
     switch batchInfo.select
         case 1
             %batch = data(randperm(size(data, 1), batchInfo.size), :);
-            batch = data(randi(batchInfo.size, [1 size(data, 1)]), :);
+            batch = data(randi(size(data, 1), [1 batchInfo.size]), :);
             
         case 2
             % Need to figure out what is to be done here %
