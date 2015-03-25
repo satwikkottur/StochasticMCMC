@@ -41,4 +41,3 @@ function generatePlots(data, mcmcSamples, truePDF, priorPDF, initGuess)
 %     hold off
 
 end
-
