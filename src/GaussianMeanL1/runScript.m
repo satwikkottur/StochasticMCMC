@@ -3,7 +3,7 @@ close all
 display('Running Bayesian Lasso');
 tic;
 
-noDims = 2; % Number of dimensions
+noDims = 1000; % Number of dimensions
 noSamples = 1000; % Number of samples
 
 % Create the dataset
@@ -17,8 +17,8 @@ gradProb = @gradLikelihood;
 % Initializing the options (manually done checking the code in hmc)
 options = -1 * ones(18, 1);
 options(9) = 0; % false
-options(14) = 10000; % Run for 50000 iterations
-options(15) = 50; % burn in
+options(14) = 50000; % Run for 50000 iterations
+options(15) = 0; % burn in
 options(7) = 10; % Number of leap steps
 options(1) = 0; % Display 
 options(18) = 0.0001; %step size
@@ -41,7 +41,7 @@ for i = 1:noMCMC
                                       data, priorPDF, truePDF, options(18), batchInfo);
     % Selecting the batches at 'random' or in a 'linear' way
     
-    mcmcSamples = samples(1:100:size(samples, 1), :);
+    mcmcSamples = samples;
 end
 
 % Verify samples
