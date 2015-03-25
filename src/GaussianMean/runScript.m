@@ -36,6 +36,7 @@ batchSize = 20;
 batchSelect = 1;  % 1 for random and 2 for linear
 batchInfo = struct('size', batchSize, 'select', batchSelect);
 
+%%%%%%%%%%%%%%%%%%%%%%%%%% HMC without stochastic%%%%%%%%%%%%%%%%%%%%%%%%%%
 for i = 1:noMCMC
     initGuess = rand(1, noDims);
     [samples, energies, diagn] = hmc(prob, initGuess, options, gradProb, ...

@@ -1,4 +1,4 @@
-function [samples, energies, diagn] = sghmc(f, x, options, gradf, varargin)
+function [samples, energies, diagn] = sghmc(f, x, options, gradf, fisher, varargin)
 %HMC	Hybrid Monte Carlo sampling.
 %
 %	Description
@@ -155,9 +155,20 @@ else
 end
 lambda = 1;
 
+%%%%%%%%%%% Satwik additions %%%%%%%%%%%%%%%
+Bhat = fisher;
+incB = 0.1 * eye(size(fisher, 1));% This is C-Bhat
+C = Bhat + incB; 
+zeroMu = zeros(1, size(fisher, 1));
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%        
+
 % Main loop.
 while n <= nsamples
-
+  % Printing for every 1000 iters
+  if(rem(n, 1000) == 0)
+      fprintf('Current Iteration: %d\n', n)
+  end
+    
   xold = x;		    % Store starting position.
   pold = p;		    % Store starting momenta
   Hold = Eold + 0.5*(p*p'); % Recalculate Hamiltonian as momenta have changed
@@ -174,17 +185,34 @@ while n <= nsamples
   epsilon = lambda*step_size*(1.0 + 0.1*randn(1));
 
   % First half-step of leapfrog.
-  p = p - 0.5*epsilon*feval(gradf, x, varargin{:});
+  %%%%%%%%%%% friction additions %%%%%%%%%%%%%%%    
+  p = p - 0.5*epsilon*feval(gradf, x, varargin{:}) - 0.5*epsilon*p*C' + ...
+                                0.5 * mvnrnd(zeroMu, incB * abs(epsilon), 1);
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%        
+  %p = p - 0.5*epsilon*feval(gradf, x, varargin{:});
   x = x + epsilon*p;
   
   % Full leapfrog steps.
   for m = 1 : L - 1
-    p = p - epsilon*feval(gradf, x, varargin{:});
+    %%%%%%%%%%% friction additions %%%%%%%%%%%%%%%    
+    p = p -epsilon*feval(gradf, x, varargin{:}) - epsilon*p*C' + ...
+                                    mvnrnd(zeroMu, incB * abs(epsilon), 1);
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%        
+    %p = p - epsilon*feval(gradf, x, varargin{:});
+    
     x = x + epsilon*p;
   end
   
+%%%%%%%%%%% friction additions %%%%%%%%%%%%%%%    
+  
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%        
+
   % Final half-step of leapfrog.
-  p = p - 0.5*epsilon*feval(gradf, x, varargin{:});
+  %%%%%%%%%%% friction additions %%%%%%%%%%%%%%%      
+  p = p - 0.5*epsilon*feval(gradf, x, varargin{:}) - 0.5*epsilon*p*C' + ...
+                                0.5 * mvnrnd(zeroMu, incB * abs(epsilon), 1);
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%        
+  %p = p - 0.5*epsilon*feval(gradf, x, varargin{:});
 
   % Now apply Metropolis algorithm.
   Enew = feval(f, x, varargin{:});	% Evaluate new energy.

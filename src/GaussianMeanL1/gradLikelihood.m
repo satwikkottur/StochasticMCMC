@@ -13,7 +13,6 @@ function gradient = gradLikelihood(theta, data, priorPDF, truePDF, stepsize, var
     %gradient = gradient_p + gradient_L;
 end
 
-
 function g = gradient_mapping_l1(point, grad1, lambda, stepsize)
     p = prox_l1(point - stepsize * grad1, lambda);
     g = (point - p) / stepsize;
