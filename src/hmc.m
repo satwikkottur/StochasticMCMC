@@ -157,6 +157,10 @@ lambda = 1;
 
 % Main loop.
 while n <= nsamples
+    % Printing for every 1000 iters
+    if(rem(n, 1000) == 0)
+        fprintf('Current Iteration: %d\n', n)
+    end
 
   xold = x;		    % Store starting position.
   pold = p;		    % Store starting momenta

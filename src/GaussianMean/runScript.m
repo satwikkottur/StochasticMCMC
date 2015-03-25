@@ -3,7 +3,7 @@ close all
 tic;
 
 noDims = 2; % Number of dimensions
-noSamples = 1000; % Number of samples
+noSamples = 100000; % Number of samples
 
 % Create the dataset
 [data, truePDF] = generateDataset(noDims, noSamples); 
@@ -16,7 +16,7 @@ gradProb = @stocGradLikelihood;
 % Initializing the options (manually done checking the code in hmc)
 options = -1 * ones(18, 1);
 options(9) = 0; % false
-options(14) = 10000; % Run for 50000 iterations
+options(14) = 100000; % Run for 50000 iterations
 options(15) = 50; % burn in
 options(7) = 10; % Number of leap steps
 options(1) = 0; % Display 
