@@ -2,8 +2,8 @@
 close all
 tic;
 % Running the Gaussian example
-path = 'GaussianMeanL1/';
-%path = 'GaussianVariance/';
+%path = 'GaussianMeanL1/';
+path = 'GaussianVariance/';
 addpath(path);
 
 % Runing the runScript from particular folder

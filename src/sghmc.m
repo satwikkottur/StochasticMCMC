@@ -155,7 +155,7 @@ else
 end
 lambda = 1;
 
-%%%%%%%%%%% Satwik additions %%%%%%%%%%%%%%%
+%%%%%%%%%%% Friction additions %%%%%%%%%%%%%%%
 Bhat = fisher;
 incB = 0.1 * eye(size(fisher, 1));% This is C-Bhat
 C = Bhat + incB; 
@@ -187,7 +187,7 @@ while n <= nsamples
   % First half-step of leapfrog.
   %%%%%%%%%%% friction additions %%%%%%%%%%%%%%%    
   p = p - 0.5*epsilon*feval(gradf, x, varargin{:}) - 0.5*epsilon*p*C' + ...
-                                0.5 * mvnrnd(zeroMu, incB * abs(epsilon), 1);
+                                0.5 * mvnrnd(zeroMu, 2*incB * abs(epsilon), 1);
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%        
   %p = p - 0.5*epsilon*feval(gradf, x, varargin{:});
   x = x + epsilon*p;
@@ -196,7 +196,7 @@ while n <= nsamples
   for m = 1 : L - 1
     %%%%%%%%%%% friction additions %%%%%%%%%%%%%%%    
     p = p -epsilon*feval(gradf, x, varargin{:}) - epsilon*p*C' + ...
-                                    mvnrnd(zeroMu, incB * abs(epsilon), 1);
+                                    mvnrnd(zeroMu, 2*incB * abs(epsilon), 1);
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%        
     %p = p - epsilon*feval(gradf, x, varargin{:});
     
@@ -210,7 +210,7 @@ while n <= nsamples
   % Final half-step of leapfrog.
   %%%%%%%%%%% friction additions %%%%%%%%%%%%%%%      
   p = p - 0.5*epsilon*feval(gradf, x, varargin{:}) - 0.5*epsilon*p*C' + ...
-                                0.5 * mvnrnd(zeroMu, incB * abs(epsilon), 1);
+                                0.5 * mvnrnd(zeroMu, 2* incB * abs(epsilon), 1);
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%        
   %p = p - 0.5*epsilon*feval(gradf, x, varargin{:});
 
