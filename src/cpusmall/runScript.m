@@ -14,12 +14,12 @@ noSamples = size(X, 1);
 % Initializing the options (manually done checking the code in hmc)
 options = -1 * ones(18, 1);
 options(9) = 0; % false
-options(14) = 100000; % Run for 50000 iterations
+options(14) = 10000; % Run for 50000 iterations
 options(15) = 1000; % burn in
 options(7) = 10; % Number of leap steps
 options(1) = 0; % Display 
 options(18) = 0.0001;
-stochastic = true;
+stochastic = false;
 
 % Running HMC, select with gradient or stochastic gradient
 prob = @likelihood;
@@ -28,10 +28,6 @@ if(stochastic)
 else
     gradProb = @gradLikelihood;
 end
-
-meanPrior = struct('mean', 0.5 * ones(1, noDims), ...
-                'variance', eye(noDims), ...
-                'precision', eye(noDims));
 
 % Generating multiple samples
 noMCMC = 1;
@@ -45,9 +41,9 @@ batchInfo = struct('size', batchSize, 'select', batchSelect);
 %%%%%%%%%%%%%%%%%%%%%%%%%% HMC without stochastic %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if(~stochastic)
     for i = 1:noMCMC
-        initGuess = [rand(1, noDims), 1];
-        [samples, energies, diagn] = hmc(prob, initGuess, options, gradProb, ...
-                                          data, meanPrior, batchInfo);
+        initGuess = rand(1, noDims);
+        [samples, energies, diagn] = hmcLocal(prob, initGuess, options, gradProb, ...
+                                          y, X, batchInfo);
         % Selecting the batches at 'random' or in a 'linear' way
 
         mcmcSamples = samples(1:100:size(samples, 1), :);
@@ -68,7 +64,7 @@ else
         initGuess = [rand(1, noDims), 1];
         [samples, energies, diagn] = sghmc(prob, initGuess, options, gradProb,...
                                             fisher, ...
-                                           data, meanPrior, batchInfo);
+                                           y, X, batchInfo);
         % Selecting the batches at 'random' or in a 'linear' way
         
         mcmcSamples = samples;
@@ -79,6 +75,6 @@ end
 
 
 % Verify samples
-generatePlots(data, mcmcSamples, truePDF, meanPrior, initGuess);
+%generatePlots(data, mcmcSamples, truePDF, meanPrior, initGuess);
 %generateTrajectory(data, samples, truePDF);                                                
 toc

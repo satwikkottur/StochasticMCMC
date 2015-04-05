@@ -1,13 +1,14 @@
-function gradient = gradLikelihood(theta, data, priorPDF, truePDF, varargin)
+function gradient = gradLikelihood(theta, y, X, varargin)
     % Function to compute the gradient given the data, current estimate of
     % theta and prior for theta
     
     % Asserting if theta is a row vector
-    assert(isrow(theta));
+    % assert(isrow(theta));
     
     % Evaluating the gradient
-    shifted = bsxfun(@minus, data, theta);
-    gradient = (theta - priorPDF.mean) * priorPDF.precision; 
-    gradient = gradient + sum(shifted * truePDF.precision);
+    weighted = sum(bsxfun(@times, X, theta), 2);
+    error = y - weighted;
+    
+    gradient = sum(bsxfun(@times, X, error)); % Plus a prior term
 end
 

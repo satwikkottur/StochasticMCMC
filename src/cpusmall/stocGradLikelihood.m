@@ -1,4 +1,4 @@
-function gradient = stocGradLikelihood(theta, data, priorPDF, truePDF, batchInfo)
+function gradient = stocGradLikelihood(theta, y, X, batchInfo)
     % Function to compute the stochastic gradient given the data,
     % current estimate of theta and prior for theta
     %
@@ -7,22 +7,25 @@ function gradient = stocGradLikelihood(theta, data, priorPDF, truePDF, batchInfo
     % Random - Select the batches at random
     
     % Asserting if theta is a row vector
-    assert(isrow(theta));
+    %assert(isrow(theta));
     
     switch batchInfo.select
         case 1
-            %batch = data(randperm(size(data, 1), batchInfo.size), :);
-            batch = data(randi(size(data, 1), [1 batchInfo.size]), :);
+            batch = randi(size(data, 1), [1 batchInfo.size]);
+            XBatch = X(batch, :);
+            yBatch = y(batch, :);
             
         case 2
             % Need to figure out what is to be done here %
-            batch = data(1:batchInfo.size, :);
+            batch = randi(size(data, 1), [1 batchInfo.size]);
+            XBatch = X(batch, :);
+            yBatch = y(batch, :);
     end
     
     % Evaluating the gradient, after picking up the batch
-    shifted = bsxfun(@minus, batch, theta);
-    gradient = (theta - priorPDF.mean) * priorPDF.precision; 
-    gradient = gradient + ...
-            size(data, 1)/batchInfo.size * sum(shifted * truePDF.precision);
+    weighted = sum(bsxfun(@times, XBatch, theta), 2);
+    error = yBatch - weighted;
+    
+    gradient = sum(bsxfun(@times, XBatch, error)); % Plus a prior term
 end
 

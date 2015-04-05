@@ -1,4 +1,4 @@
-function [samples, energies, diagn] = hmc(f, x, options, gradf, varargin)
+function [samples, energies, diagn] = hmcLocal(f, x, options, gradf, varargin)
 %HMC	Hybrid Monte Carlo sampling.
 %
 %	Description

@@ -1,21 +1,17 @@
-function likelihood = likelihood(theta, data, priorPDF, truePDF, varargin)
+function likelihood = likelihood(theta, y, X, varargin)
     % Finding the likelihood for the Gaussian case
     % Assuming theta to be the parameter value
     % priorPDF(struct) has mean and variance attributes
     
     % Asserting if theta is a row vector
-    assert(isrow(theta));
+    %assert(isrow(theta));
     
     % Computing the likelihood
-    likelihood = 0.5 * (theta - priorPDF.mean) * priorPDF.precision * ...
-                        (theta - priorPDF.mean)';
-                                        
-    shifted = bsxfun(@minus, data, theta);
+    weighted = sum(bsxfun(@times, X, theta), 2);
+    error = bsxfun(@minus, weighted, y);
     
     % Faster computation
-    product = shifted * truePDF.precision;
-    product = product .* shifted;
-    likelihood = likelihood + 0.5 * sum(product(:));
+    likelihood = sum(error .^ 2); % Plus a prior term
 end
 
 
