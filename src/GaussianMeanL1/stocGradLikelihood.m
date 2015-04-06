@@ -19,10 +19,25 @@ function gradient = stocGradLikelihood(theta, data, priorPDF, truePDF, batchInfo
             batch = data(1:batchInfo.size, :);
     end
     
-    % Evaluating the gradient, after picking up the batch
+    % Evaluating the gradient
     shifted = bsxfun(@minus, batch, theta);
-    gradient = (theta - priorPDF.mean) * priorPDF.precision; 
-    gradient = gradient + ...
-            size(data, 1)/batchInfo.size * sum(shifted * truePDF.precision);
+    %gradient_p = (theta - priorPDF.mean) * priorPDF.precision; 
+    gradient_L = size(data, 1)/batchInfo.size * sum(shifted * truePDF.precision); %scale liklihood term
+    gradient = gradient_mapping_l1(theta, gradient_L, priorPDF.lambda, stepsize);
+    %gradient = gradient_p + gradient_L;
+end
+
+function g = gradient_mapping_l1(point, grad1, lambda, stepsize)
+    p = prox_l1(point - stepsize * grad1, lambda * stepsize);
+    g = (point - p) / stepsize;
+end
+
+function p = prox_l1(points, lambda)
+    i = points < -lambda;
+    j = points > lambda;
+    %k = abs(points) < lambda;
+    p = zeros(size(points));
+    p(i) = points(i) + lambda;
+    p(j) = points(j) - lambda;
 end
 
