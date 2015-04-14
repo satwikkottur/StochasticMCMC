@@ -2,8 +2,9 @@
 close all
 display('Running Bayesian Lasso');
 tic;
+stochastic = 0;
 
-noDims = 1000; % Number of dimensions
+noDims = 2; % Number of dimensions
 noSamples = 1000; % Number of samples
 
 % Create the dataset
@@ -11,40 +12,60 @@ noSamples = 1000; % Number of samples
 
 % Running HMC, select with gradient or stochastic gradient
 prob = @likelihood;
-gradProb = @gradLikelihood;
-%gradProb = @stocGradLikelihood;
+if (stochastic)
+    gradProb = @stocGradLikelihood;
+else
+    gradProb = @gradLikelihood;
+end
 
 % Initializing the options (manually done checking the code in hmc)
 options = -1 * ones(18, 1);
 options(9) = 0; % false
-options(14) = 100000; % Run for 50000 iterations
+options(14) = 50000; % Run for 50000 iterations
 options(15) = 50; % burn in
-options(7) = 10; % Number of leap steps
+options(7) = 1; % Number of leap steps
 options(1) = 0; % Display 
-options(18) = 0.0001; %step size
+options(18) = 5e-5; %step size
 
 % Relatively good prior
-priorPDF = struct('lambda', 0.0001);
+priorPDF = struct('lambda', 0.1);
             
 % Generating multiple samples
 noMCMC = 1;
 mcmcSamples = zeros(noMCMC, noDims);
 
 % Infomation for selecting the batches
-batchSize = 20;
-batchSelect = 1;  % 1 for random and 2 for linear
-batchInfo = struct('size', batchSize, 'select', batchSelect);
+batchSize = 1000;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Generating the fisher matrix
+% Use mle mean and mle variance
+mleMean = mean(data);
+shifted = bsxfun(@minus, data, mleMean);
+mleVar = 1/size(data, 1) * sum(sum(shifted .* shifted));
+
+gaussian = struct('type', 'mGaussMean', 'variance', mleVar, ...
+                'dimensions', noDims);
+% gaussian = struct('type', 'mGaussMeanSigma', 'variance', mleVar, ...
+%     'dimensions', noDims+1);
+fisher = getFisherMatrix(gaussian);
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 for i = 1:noMCMC
     initGuess = rand(1, noDims);
-    [samples, energies, diagn] = hmc(prob, initGuess, options, gradProb, ...
-                                      data, priorPDF, truePDF, options(18), batchInfo);
-    % Selecting the batches at 'random' or in a 'linear' way
+    
+    % Stochastic
+    if (stochastic)
+        [samples, energies, diagn] = shmc(prob, initGuess, options, gradProb, ...
+                                    data, priorPDF, batchSize, fisher, []);
+    else
+        [samples, energies, diagn] = hmc(prob, initGuess, options, gradProb, ...
+                                     data, priorPDF, []);    
+    end
     
     mcmcSamples = samples;
 end
 
 % Verify samples
-generatePlots(data, mcmcSamples, truePDF, priorPDF, initGuess);
+generatePlots(data, mcmcSamples(1:1000:end,:), truePDF, priorPDF, initGuess);
 %generateTrajectory(data, samples, truePDF);                                                
 toc

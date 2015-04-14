@@ -1,4 +1,4 @@
-function gradient = gradLikelihood(theta, data, priorPDF, truePDF, stepsize, varargin)
+function gradient = gradLikelihood(theta, data, priorPDF, stepSize, varargs)
     % Function to compute the gradient given the data, current estimate of
     % theta and prior for theta
     
@@ -7,10 +7,10 @@ function gradient = gradLikelihood(theta, data, priorPDF, truePDF, stepsize, var
     
     % Evaluating the gradient
     shifted = bsxfun(@minus, data, theta);
-    %gradient_p = (theta - priorPDF.mean) * priorPDF.precision; 
-    gradient_L =  sum(shifted * truePDF.precision);
-    gradient = gradient_mapping_l1(theta, gradient_L, priorPDF.lambda, stepsize);
-    %gradient = gradient_p + gradient_L;
+    gradient_p = theta; %(theta - priorPDF.mean) * priorPDF.precision; 
+    gradient_L =  sum(shifted);
+    %gradient = gradient_mapping_l1(theta, gradient_L, priorPDF.lambda, stepSize);
+    gradient = gradient_p + gradient_L;
 end
 
 function g = gradient_mapping_l1(point, grad1, lambda, stepsize)

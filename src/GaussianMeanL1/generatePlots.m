@@ -28,16 +28,16 @@ function generatePlots(data, mcmcSamples, truePDF, priorPDF, initGuess)
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Plotting the MCMC samples and posterior
     display(size(mcmcSamples));
-    mcmcMean = mean(mcmcSamples(10000:end, :));
-    mcmcMedian = median(mcmcSamples(10000:end, :));
+    mcmcMean = mean(mcmcSamples(100:end, :));
+    mcmcMedian = median(mcmcSamples(100:end, :));
     fprintf('MCMC mean:');  fprintf('%f\t', mcmcMean); fprintf('\n');
     fprintf('MCMC median:');  fprintf('%f\t', mcmcMedian); fprintf('\n');
-%     figure(2); hold all
-%         plot(mcmcSamples(:, 1), mcmcSamples(:, 2), 'x')
-%         plot(mcmcMean(1), mcmcMean(2), 'o')
-%         plot(mcmcMedian(1), mcmcMedian(2), 'd')
-%         plot(mle(1), mle(2), '*');
-%         plot(initGuess(1), initGuess(2), 's')
-%     hold off
+    figure(2); hold all
+        plot(mcmcSamples(:, 1), mcmcSamples(:, 2), 'x')
+        plot(mcmcMean(1), mcmcMean(2), 'o')
+        plot(mcmcMedian(1), mcmcMedian(2), 'd')
+        plot(mle(1), mle(2), '*');
+        plot(initGuess(1), initGuess(2), 's')
+    hold off
 
 end
