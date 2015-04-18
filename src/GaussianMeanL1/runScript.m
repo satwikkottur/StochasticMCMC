@@ -1,5 +1,5 @@
 % Default script to be run for test/debugging purposes
-close all
+%close all
 display('Running Bayesian Lasso');
 tic;
 stochastic = 0;
@@ -21,8 +21,8 @@ end
 % Initializing the options (manually done checking the code in hmc)
 options = -1 * ones(18, 1);
 options(9) = 0; % false
-options(14) = 50000; % Run for 50000 iterations
-options(15) = 50; % burn in
+options(14) = 100000; % Run for 50000 iterations
+options(15) = 1; % burn in
 options(7) = 1; % Number of leap steps
 options(1) = 0; % Display 
 options(18) = 5e-5; %step size
@@ -35,7 +35,7 @@ noMCMC = 1;
 mcmcSamples = zeros(noMCMC, noDims);
 
 % Infomation for selecting the batches
-batchSize = 1000;
+batchSize = 30;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Generating the fisher matrix
 % Use mle mean and mle variance
@@ -51,7 +51,8 @@ fisher = getFisherMatrix(gaussian);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 for i = 1:noMCMC
-    initGuess = rand(1, noDims);
+    %initGuess = rand(1, noDims);
+    initGuess = truePDF.mean;
     
     % Stochastic
     if (stochastic)
@@ -66,6 +67,7 @@ for i = 1:noMCMC
 end
 
 % Verify samples
-generatePlots(data, mcmcSamples(1:1000:end,:), truePDF, priorPDF, initGuess);
+generatePlots(data, mcmcSamples(1:100:end,:), truePDF, priorPDF, initGuess);
+rejectionAnalysis
 %generateTrajectory(data, samples, truePDF);                                                
 toc

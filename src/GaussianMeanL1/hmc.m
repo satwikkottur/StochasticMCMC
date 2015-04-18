@@ -140,22 +140,22 @@ while n <= nsamples
     
     
     % Perturb step length.
-    %epsilon = lambda*step_size*(1.0 + 0.1*randn(1))
-  epsilon = lambda*step_size*(1.0 + 0.1*randn(1))/min(nthroot(max(n, 1), 2), 200);
-  L1 = ceil(L * min(nthroot(max(n, 1), 2), 200));
+    epsilon = lambda*step_size*(1.0 + 0.1*randn(1));
+  %epsilon = lambda*step_size*(1.0 + 0.1*randn(1))/min(nthroot(max(n, 1), 2), 200);
+  %L1 = ceil(L * min(nthroot(max(n, 1), 2), 200));
   %epsilon = lambda*step_size*(1.0 + 0.1*randn(1)) / min(nthroot(max(n,4), 5), 100);
 
   % First half-step of leapfrog.
-  gradfff = feval(gradf, x, data, priorPDF, abs(epsilon/2), varargs);
-   if(rem(n, 10000) == 0)
-        gradfff
+  gradient = feval(gradf, x, data, priorPDF, abs(epsilon/2), varargs);
+    if(rem(n, 10000) == 0)
+        gradient
     end
-  p = p - 0.5*epsilon*gradfff;
+  p = p - 0.5 * epsilon * gradient;
   x = x + epsilon*p;
   
   % Full leapfrog steps.
-  %for m = 1 : L - 1
-  for m = 1 : L1 - 1
+  for m = 1 : L - 1
+  %for m = 1 : L1 - 1
     p = p - epsilon*feval(gradf, x, data, priorPDF, abs(epsilon), varargs);
     x = x + epsilon*p;
   end
@@ -179,9 +179,19 @@ while n <= nsamples
     disp(x);
   end
   
-  metropolis  = 0;
+    % Stop MH after first few iterations
+%     nThreshold = 0.5 * nsamples;
+%     if(n > nThreshold)
+%         metropolis = 0;
+%     elseif (n == nThreshold)
+%         step_size = 0.1 * step_size;
+%      else
+%         metropolis = 1;
+%     end
+%     
+  	metropolis = 1;
   if(~metropolis)
-      Eold = Enew;			% Update energy
+    Eold = Enew;			% Update energy
         if (display > 0)
           fprintf(1, 'Finished step %4d  Threshold: %g\n', n, a);
         end
