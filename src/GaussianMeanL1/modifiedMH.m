@@ -1,16 +1,23 @@
 function accept = modifiedMH(data, curSample, prevSample, curP, ...
-                                        prevP, batchSize, threshold, ...
-                                        priorPDF)
+                                    prevP, batchSize, threshold, priorPDF)
     % MH modified to use only a batch from the data
+    
+    % Debugging message
+    %fprintf('Entered modified MH\n');
     
     % Compute mu0 for the previous and current samples
     noData = size(data, 1);
     
-    priorTerm = -0.5 * ((prevSample - priorPDF.mean) * priorPDF.precision ...
-                                * (prevSample - priorPDF.mean)' - ...
-                        (curSample - priorPDF.mean) * priorPDF.precision ...
-                        * (curSample - priorPDF.mean)') ;
-    transitionTerm = -0.5 * (prevP^2 - curP^2);
+%     priorTerm = -0.5 * ((prevSample - priorPDF.mean) * priorPDF.precision ...
+%                                 * (prevSample - priorPDF.mean)' - ...
+%                         (curSample - priorPDF.mean) * priorPDF.precision ...
+%                         * (curSample - priorPDF.mean)') ;
+
+    priorTerm = -0.5 * ...
+            ((prevSample - priorPDF.mean)*(prevSample - priorPDF.mean)' ...
+            -(curSample - priorPDF.mean)*(curSample - priorPDF.mean)');
+
+    transitionTerm = -0.5 * (prevP * prevP' - curP * curP');
     mu0 = 1/noData * (log(rand()) + priorTerm + transitionTerm);
     
     % Mean values for l and lsquared, along with batch size
@@ -22,17 +29,24 @@ function accept = modifiedMH(data, curSample, prevSample, curP, ...
     remIndices = 1:noData;
     
     done = false;
+    accept = false;
+    
     while(~done)
         % Pick a batch
         if(length(remIndices) > batchSize)
             indices = randperm(length(remIndices), batchSize);
+        elseif length(remIndices > 0)
+            indices = 1:length(remIndices);
         else
-            indices = remIndices;
+            accept = false;
+            return
+            %error('Entire data used for MH test');
         end
         
         % Overpicking and then selecting the unique
         %indices = randi(noData, [batchSize, 1]);
         curBatchSize = batchSize + curBatchSize;
+        
         batch = data(remIndices(indices), :);
 
         % Removing the picked batch indices
@@ -56,7 +70,7 @@ function accept = modifiedMH(data, curSample, prevSample, curP, ...
         s = sL / sqrt(batchSize) * sqrt(1 - (batchSize - 1)/(noData - 1));
 
         % Check for confidence
-        delta = 1 - tcdf(abs((meanL - mu0)/s));
+        delta = 1 - tcdf(abs((meanL - mu0)/s), curBatchSize-1);
 
         % We are sure about the decision, decide and exit
         if(delta < threshold)
@@ -70,5 +84,7 @@ function accept = modifiedMH(data, curSample, prevSample, curP, ...
             done = true;
         end
     end
+    
+    % Debugging message
+    %fprintf('Modified MH (%d) used : %d / %d \n', accept, curBatchSize, noData);
 end
-

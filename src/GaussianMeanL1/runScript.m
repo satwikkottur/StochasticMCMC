@@ -21,14 +21,14 @@ end
 % Initializing the options (manually done checking the code in hmc)
 options = -1 * ones(18, 1);
 options(9) = 0; % false
-options(14) = 100000; % Run for 50000 iterations
+options(14) = 150000; % Run for 50000 iterations
 options(15) = 1; % burn in
 options(7) = 1; % Number of leap steps
 options(1) = 0; % Display 
-options(18) = 5e-5; %step size
+options(18) = 1e-3; %step size
 
 % Relatively good prior
-priorPDF = struct('lambda', 0.1);
+priorPDF = struct('lambda', 0.1, 'mean', rand(1, noDims));
             
 % Generating multiple samples
 noMCMC = 1;

@@ -118,6 +118,7 @@ Eold = feval(f, x, data, priorPDF, varargs);	% Evaluate starting energy.
 nreject = 0;
 
 p = randn(1, nparams);		% Initialise momenta at random
+
 lambda = 1;
 
 % Main loop.
@@ -196,13 +197,39 @@ while n <= nsamples
           fprintf(1, 'Finished step %4d  Threshold: %g\n', n, a);
         end
   else
-      random_number = rand(1);
-      if a > random_number			% Accept the new state.
+      % Simple metropolis
+%       random_number = rand(1);
+%       if a > random_number			% Accept the new state.
+%         Eold = Enew;			% Update energy
+%         if (display > 0)
+%           fprintf(1, 'Finished step %4d  Threshold: %g\n', n, a);
+%         end
+%       else					% Reject the new state.
+%         if n > 0 
+%           nreject = nreject + 1;
+%         end
+%         x = xold;				% Reset position 
+%         p = pold;   			% Reset momenta
+%         if (display > 0)
+%           fprintf(1, '  Sample rejected %4d.  Threshold: %g\n', n, a);
+%         end
+%       end
+
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % Batch based metropolis hastings
+    % Function signature
+    % accept = modifiedMH(data, curSample, prevSample, curP, ...
+    %                        prevP, batchSize, threshold, priorPDF);
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    batchSize = 30;
+    accept = modifiedMH(data, x, xold, p, pold, batchSize, 0.1, priorPDF);
+    if accept			% Accept the new state.
         Eold = Enew;			% Update energy
         if (display > 0)
           fprintf(1, 'Finished step %4d  Threshold: %g\n', n, a);
         end
-      else					% Reject the new state.
+    else					% Reject the new state.
         if n > 0 
           nreject = nreject + 1;
         end
@@ -210,9 +237,8 @@ while n <= nsamples
         p = pold;   			% Reset momenta
         if (display > 0)
           fprintf(1, '  Sample rejected %4d.  Threshold: %g\n', n, a);
-        end
-      end
-  end
+        end    
+    end
   
   if n > 0
     samples(n,:) = x;			% Store sample.
@@ -220,7 +246,7 @@ while n <= nsamples
       energies(n) = Eold;		% Store energy.
     end
   end
-
+  end
   % Set momenta for next iteration
   if(rem(n, 50) == 0)
         p = randn(1, nparams);	% Replace all momenta.
