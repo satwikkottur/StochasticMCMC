@@ -4,18 +4,18 @@ display('Running Bayesian Lasso');
 tic;
 stochastic = 1;
 
-noDims = 10000; % Number of dimensions
-noSamples = 100000; % Number of samples
+noDims = 1000; % Number of dimensions
+noSamples = 10000; % Number of samples
 
 % Create the dataset
-[X, y, trueBeta, trueSigmaSq] = generateDataset(noDims, noSamples); 
-% Splitting between training and testing
-train = 1:noSamples*0.8;
-XTrain = X(train, :);
-yTrain = y(train);
-
-XTest = X(train(end)+1:end, :);
-yTest = y(train(end)+1:end);
+% [X, y, trueBeta, trueSigmaSq] = generateDataset(noDims, noSamples); 
+% % Splitting between training and testing
+% train = 1:noSamples*0.8;
+% XTrain = X(train, :);
+% yTrain = y(train);
+% 
+% XTest = X(train(end)+1:end, :);
+% yTest = y(train(end)+1:end);
 
 % Running HMC, select with gradient or stochastic gradient
 prob = @likelihood;
@@ -28,7 +28,7 @@ end
 % Initializing the options (manually done checking the code in hmc)
 options = -1 * ones(18, 1);
 options(9) = 0; % false
-options(14) = 50000; % Run for 50000 iterations
+options(14) = 10000; % Run for 50000 iterations
 options(15) = 1; % burn in
 options(7) = 5; % Number of leap steps
 options(1) = 0; % Display 
@@ -54,7 +54,7 @@ fisher = zeros(1, noDims+1);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 initGuess = rand(1, noDims + 1);
-lambda = 10000;
+lambda = 1000000000;
 
 % Stochastic
 if (stochastic)

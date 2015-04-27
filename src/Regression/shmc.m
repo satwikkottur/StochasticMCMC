@@ -119,13 +119,13 @@ while n <= nsamples
     p = p - 0.5*epsilon*gradient;
 
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  metropolis = 0;
+  metropolis = 1;
   switch metropolis
       case 0
         if (display > 0)
           fprintf(1, 'Finished step %4d  Threshold: %g\n', n, a);
         end
-            
+        p = -p;     
       case 1
         %Simple metropolis
         % Now apply Metropolis algorithm.
