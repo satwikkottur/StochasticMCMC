@@ -1,5 +1,5 @@
-function [samples, energies, diagn] = shmc(f, x, options, gradf, ...,
-                                data, priorPDF, batchSize, fisher, varargs)
+function [samples, energies, diagn] = hmc(f, x, options, gradf, ...,
+                                data, priorPDF, varargs)
 %HMC	Hybrid Monte Carlo sampling.
 %
 %	Description
@@ -97,6 +97,8 @@ if options(18) > 0
 else
   step_size = 1/L;		% Default  
 end
+alpha = 0.1;
+salpha = sqrt(1-alpha^2);
 
 x = x(:)';		% Force x to be a row vector
 nparams = length(x);
@@ -118,23 +120,10 @@ nreject = 0;
 p = randn(1, nparams);		% Initialise momenta at random
 lambda = 1;
 
-%%%%%%%%%%% Friction additions %%%%%%%%%%%%%%%
-Bhat = fisher;
-incB = 0.01 * ones(1, length(fisher));% This is C-Bhat
-C = Bhat + incB; 
-%%%%%%
-% C = zeros(size(C));
-% incB = zeros(size(incB));
-%%%%%%
-zeroMu = zeros(1, length(fisher));
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%        
-
 % Main loop.
-noCount = 0
-
 while n <= nsamples
     % Printing for every 1000 iters
-    if(rem(n, 1000) == 0)
+    if(rem(n, 10000) == 0)
         fprintf('current Iteration: %d\n', n)
     end
 
@@ -149,38 +138,35 @@ while n <= nsamples
       lambda = 1;
     end
     
+    
     % Perturb step length.
-  epsilon = lambda*step_size*(1.0 + 0.1*randn(1));
+    epsilon = lambda*step_size*(1.0 + 0.1*randn(1));
+  %epsilon = lambda*step_size*(1.0 + 0.1*randn(1))/min(nthroot(max(n, 1), 2), 200);
+ %L1 = ceil(L * min(nthroot(max(n, 1), 2), 200));
+  %epsilon = lambda*step_size*(1.0 + 0.1*randn(1)) / min(nthroot(max(n,4), 5), 100);
 
   % First half-step of leapfrog.
-  gradfff = feval(gradf, x, data, priorPDF, abs(epsilon/2), batchSize, varargs) ...
-                                - 0.5 * epsilon * (p.* C) + ...
-                                0.5 * mvnrnd(zeroMu, 2 * incB * abs(epsilon), 1);
-    if(rem(n, 1000) == 0)
-        gradfff
+  gradient = feval(gradf, x, data, priorPDF, abs(epsilon/2), varargs);
+    if(rem(n, 10000) == 0)
+        gradient
     end
-  p = p - 0.5*epsilon*gradfff;
-  
+  p = p - 0.5 * epsilon * gradient;
   x = x + epsilon*p;
   
   % Full leapfrog steps.
   for m = 1 : L - 1
-      gradfff = feval(gradf, x, data, priorPDF, abs(epsilon), batchSize, varargs) ...
-                                - epsilon * (p.*C) + ...
-                                   mvnrnd(zeroMu, 2*incB * abs(epsilon), 1);
-    p = p - epsilon* gradfff;
+  %for m = 1 : L1 - 1
+    p = p - epsilon*feval(gradf, x, data, priorPDF, abs(epsilon), varargs);
     x = x + epsilon*p;
   end
   
   % Final half-step of leapfrog.
-    p = p - 0.5*epsilon*feval(gradf, x, data, priorPDF, abs(epsilon/2), batchSize, varargs) ...
-                                    - 0.5*epsilon * (p.*C) + ...
-                                    0.5 * mvnrnd(zeroMu, 2*incB * abs(epsilon), 1);
+  p = p - 0.5*epsilon*feval(gradf, x, data, priorPDF, abs(epsilon/2), varargs);
 
   % Now apply Metropolis algorithm.
   Enew = feval(f, x, data, priorPDF, varargs);	% Evaluate new energy.
   p = -p;				% Negate momentum
-  Hnew = Enew + 0.5*p*p';		% Evaluate new Hamiltonian.
+  Hnew = Enew + 0.5*(p*p');		% Evaluate new Hamiltonian.
   a = exp(Hold - Hnew);			% Acceptance threshold.
   if (n > 0)
     diagn_pos(n,:) = x;
@@ -192,25 +178,14 @@ while n <= nsamples
     fprintf(1, 'New position is\n');
     disp(x);
   end
-
   
- metropolis  = 1;
+  metropolis  = 1;
   if(~metropolis)
       Eold = Enew;			% Update energy
         if (display > 0)
           fprintf(1, 'Finished step %4d  Threshold: %g\n', n, a);
         end
   else
-    batchSize = 30;
-    [accept, entireBatch] = ...
-            modifiedMH(data, x, xold, p, pold, batchSize, 0.05, priorPDF);
-        
-    noCount = noCount + entireBatch; 
-      
-      
-      % Pass through true MH
-    if(entireBatch)
-        %Simple metropolis
       random_number = rand(1);
       if a > random_number			% Accept the new state.
         Eold = Enew;			% Update energy
@@ -227,26 +202,6 @@ while n <= nsamples
           fprintf(1, '  Sample rejected %4d.  Threshold: %g\n', n, a);
         end
       end
-    else
-    
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-        if accept			% Accept the new state.
-            Eold = Enew;			% Update energy
-            if (display > 0)
-              fprintf(1, 'Finished step %4d  Threshold: %g\n', n, a);
-            end
-        else					% Reject the new state.
-            if n > 0 
-              nreject = nreject + 1;
-            end
-            x = xold;				% Reset position 
-            p = pold;   			% Reset momenta
-            if (display > 0)
-              fprintf(1, '  Sample rejected %4d.  Threshold: %g\n', n, a);
-            end    
-        end
-    end
   end
   
   if n > 0
@@ -257,7 +212,15 @@ while n <= nsamples
   end
 
   % Set momenta for next iteration
-  p = randn(1, nparams);	% Replace all momenta.
+  if(rem(n, 50) == 0)
+        p = randn(1, nparams);	% Replace all momenta.
+  else
+      p = -p;
+    % Adjust momenta by a small random amount.
+      p = alpha.*p + salpha.*randn(1, nparams);
+  end
+  %p = randn(1, nparams);	% Replace all momenta.
+  
   n = n + 1;
 end
 

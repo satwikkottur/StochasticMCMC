@@ -1,4 +1,4 @@
-function [accept, entireBatch] = modifiedMH(data, curSample, prevSample, curP, ...
+function accept = modifiedMH(data, curSample, prevSample, curP, ...
                                     prevP, batchSize, threshold, priorPDF)
     % MH modified to use only a batch from the data
     
@@ -39,8 +39,7 @@ function [accept, entireBatch] = modifiedMH(data, curSample, prevSample, curP, .
             indices = 1:length(remIndices);
         else
             accept = false;
-            entireBatch = 1;
-            %fprintf('Entire batch used for MH\n');
+            fprintf('Entire batch used for MH\n');
             return
             %error('Entire data used for MH test');
         end
@@ -87,10 +86,7 @@ function [accept, entireBatch] = modifiedMH(data, curSample, prevSample, curP, .
         end
     end
     
-    entireBatch = 0;
     %fprintf('************************ Modified MH successful\n');
     % Debugging message
-%     if(curBatchSize ~= 30)
-%        fprintf('Modified MH (%d) used : %d / %d \n', accept, curBatchSize, noData);
-%     end
+    %fprintf('Modified MH (%d) used : %d / %d \n', accept, curBatchSize, noData);
 end

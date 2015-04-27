@@ -1,24 +1,29 @@
-function [accept, entireBatch] = modifiedMH(data, curSample, prevSample, curP, ...
-                                    prevP, batchSize, threshold, priorPDF)
+function [accept, entireBatch] = modifiedMH(X, y, nextSample, curSample, ...
+                                        nextP, curP, lambda)
+
     % MH modified to use only a batch from the data
     
     % Debugging message
     %fprintf('Entered modified MH\n');
     
     % Compute mu0 for the previous and current samples
-    noData = size(data, 1);
+    d = length(curSample) - 1;
+    n = length(y);
     
-%     priorTerm = -0.5 * ((prevSample - priorPDF.mean) * priorPDF.precision ...
-%                                 * (prevSample - priorPDF.mean)' - ...
-%                         (curSample - priorPDF.mean) * priorPDF.precision ...
-%                         * (curSample - priorPDF.mean)') ;
-
-    priorTerm = -0.5 * ...
-            ((prevSample - priorPDF.mean)*(prevSample - priorPDF.mean)' ...
-            -(curSample - priorPDF.mean)*(curSample - priorPDF.mean)');
-
-    transitionTerm = -0.5 * (prevP * prevP' - curP * curP');
-    mu0 = 1/noData * (log(rand()) + priorTerm + transitionTerm);
+    cSigmaSq = curSample(end); 
+    nSigmaSq = nextSample(end);
+    cBeta = curSample(1:end-1)';
+    nBeta = nextSample(1:end-1)';
+    
+    % Prior term
+    priorTerm = (1 + d/2) * log (nSigmaSq / cSigmaSq) + ...
+                    lambda * (norm(nBeta, 1) / sqrt(nSigmaSq) - ...
+                                    norm(cBeta, 1) / sqrt(cSigmaSq)) ;
+    
+    % Transition term
+    transitionTerm = -0.5 * (curP * curP' - nextP * nextP');
+    
+    mu0 = 1/n * (log(rand()) + priorTerm + transitionTerm);
     
     % Mean values for l and lsquared, along with batch size
     meanL = 0;
@@ -26,7 +31,7 @@ function [accept, entireBatch] = modifiedMH(data, curSample, prevSample, curP, .
     curBatchSize = 0;
     
     % Remaining indices for the batches, from the original dataset
-    remIndices = 1:noData;
+    remIndices = 1:n;
     
     done = false;
     accept = false;
@@ -35,7 +40,7 @@ function [accept, entireBatch] = modifiedMH(data, curSample, prevSample, curP, .
         % Pick a batch
         if(length(remIndices) > batchSize)
             indices = randperm(length(remIndices), batchSize);
-        elseif length(remIndices > 0)
+        elseif isempty(remIndices)
             indices = 1:length(remIndices);
         else
             accept = false;
@@ -49,27 +54,28 @@ function [accept, entireBatch] = modifiedMH(data, curSample, prevSample, curP, .
         %indices = randi(noData, [batchSize, 1]);
         curBatchSize = batchSize + curBatchSize;
         
-        batch = data(remIndices(indices), :);
+        XBatch = X(remIndices(indices), :);
+        yBatch = y(remIndices(indices), :);
 
         % Removing the picked batch indices
         remIndices(indices) = [];
         
         % update E[l] and E[l^2]
-        % Shifting the batch using previous sample
-        pShifted = bsxfun(@minus, batch, prevSample);
-        % Shifting the batch using current sample
-        cShifted = bsxfun(@minus, batch, curSample);
-        l = -0.5 * sum(cShifted .^ 2, 2) + 0.5 * sum(pShifted .^ 2, 2);
+        cResidual = yBatch - XBatch * cBeta;
+        nResidual = yBatch - YBatch * nBeta;
+        
+        l = 1/2 * (log(cSigmaSq) - log(nSigmaSq)) + ...
+                1/2 * ( cResidual.^2 / cSigmaSq - nResidual.^2 / nSigmaSq);
 
         % update E[l] and E[l^2]
         meanL = (meanL * (curBatchSize - batchSize) + ...
-                        mean(l) * batchSize)/curBatchSize;
+                        sum(l))/curBatchSize;
         meanL2 = (meanL2 * (curBatchSize - batchSize) + ...
-                        mean(l.^2) * batchSize)/curBatchSize;
+                        sum(l.^2))/curBatchSize;
 
         % Compute standard deviation
         sL = sqrt((meanL2 - meanL^2) * batchSize / (batchSize-1));
-        s = sL / sqrt(batchSize) * sqrt(1 - (batchSize - 1)/(noData - 1));
+        s = sL / sqrt(batchSize) * sqrt(1 - (batchSize - 1)/(n - 1));
 
         % Check for confidence
         delta = 1 - tcdf(abs((meanL - mu0)/s), curBatchSize-1);

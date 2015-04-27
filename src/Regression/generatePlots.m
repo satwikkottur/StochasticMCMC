@@ -1,12 +1,6 @@
 function generatePlots(data, mcmcSamples, truePDF, priorPDF, initGuess)
+function generatePlots(XTest, yTest, samples, 
     % Generating some plots of true sampling and posterior sampling
-
-    % Plotting the true samples
-%     figure(1); hold all
-%         plot(data(:, 1), data(:, 2), 'x')
-%         % True mean
-%         plot(truePDF.mean(1), truePDF.mean(2), 'o');
-%     hold off
 
     %%%%%%%%%%%%%%%%%%% Checking the mean %%%%%%%%%%%%%%%%%%%
     noData = size(data, 1);

@@ -2,10 +2,10 @@
 %close all
 display('Running Bayesian Lasso');
 tic;
-stochastic = 0;
+stochastic = 1;
 
-noDims = 2; % Number of dimensions
-noSamples = 1000; % Number of samples
+noDims = 1; % Number of dimensions
+noSamples = 10000; % Number of samples
 
 % Create the dataset
 [data, truePDF] = generateDataset(noDims, noSamples); 
@@ -21,7 +21,7 @@ end
 % Initializing the options (manually done checking the code in hmc)
 options = -1 * ones(18, 1);
 options(9) = 0; % false
-options(14) = 150000; % Run for 50000 iterations
+options(14) = 100000; % Run for 50000 iterations
 options(15) = 1; % burn in
 options(7) = 1; % Number of leap steps
 options(1) = 0; % Display 
@@ -51,8 +51,8 @@ fisher = getFisherMatrix(gaussian);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 for i = 1:noMCMC
-    %initGuess = rand(1, noDims);
-    initGuess = truePDF.mean;
+    initGuess = rand(1, noDims);
+    %initGuess = truePDF.mean;
     
     % Stochastic
     if (stochastic)
