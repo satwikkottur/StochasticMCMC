@@ -1,5 +1,5 @@
 function [accept, entireBatch] = modifiedMH(X, y, nextSample, curSample, ...
-                                        nextP, curP, lambda)
+                                nextP, curP, lambda, batchSize, threshold)
 
     % MH modified to use only a batch from the data
     
@@ -21,7 +21,7 @@ function [accept, entireBatch] = modifiedMH(X, y, nextSample, curSample, ...
                                     norm(cBeta, 1) / sqrt(cSigmaSq)) ;
     
     % Transition term
-    transitionTerm = -0.5 * (curP * curP' - nextP * nextP');
+    transitionTerm = 0.5 * (curP * curP' - nextP * nextP');
     
     mu0 = 1/n * (log(rand()) + priorTerm + transitionTerm);
     
@@ -62,7 +62,7 @@ function [accept, entireBatch] = modifiedMH(X, y, nextSample, curSample, ...
         
         % update E[l] and E[l^2]
         cResidual = yBatch - XBatch * cBeta;
-        nResidual = yBatch - YBatch * nBeta;
+        nResidual = yBatch - XBatch * nBeta;
         
         l = 1/2 * (log(cSigmaSq) - log(nSigmaSq)) + ...
                 1/2 * ( cResidual.^2 / cSigmaSq - nResidual.^2 / nSigmaSq);
@@ -96,7 +96,7 @@ function [accept, entireBatch] = modifiedMH(X, y, nextSample, curSample, ...
     entireBatch = 0;
     %fprintf('************************ Modified MH successful\n');
     % Debugging message
-%     if(curBatchSize ~= 30)
-%        fprintf('Modified MH (%d) used : %d / %d \n', accept, curBatchSize, noData);
-%     end
+    %if(curBatchSize ~= 30)
+       %fprintf('Modified MH (%d) used : %d / %d \n', accept, curBatchSize, n);
+    %end
 end

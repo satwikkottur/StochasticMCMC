@@ -51,8 +51,9 @@ Xty = XData' * yData;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Main loop.
 while n <= nsamples
+    %n
     % Printing for every 1000 iters
-    if(rem(n, 10000) == 0)
+    if(rem(n, 1000) == 0)
         fprintf('current Iteration: %d\n', n)
     end
 
@@ -73,9 +74,9 @@ while n <= nsamples
   
   % First half-step of leapfrog.
   gradient = feval(gradf, x, XData, yData, XtX, Xty, lambda, abs(epsilon/2));
-    if(rem(n, 10000) == 0)
-        gradient
-    end
+%     if(rem(n, 10000) == 0)
+%         gradient
+%     end
   p = p - 0.5 * epsilon * gradient;
   x = x + epsilon*p;
   
@@ -134,7 +135,7 @@ while n <= nsamples
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         batchSize = 30;
         [accept, entireBatch] = ...
-                modifiedMH(data, x, xold, p, pold, batchSize, 0.1, priorPDF);
+                modifiedMH(XData, yData, x, xold, p, pold, lambda, batchSize, 0.1);
 
         noCount = noCount + entireBatch; 
 

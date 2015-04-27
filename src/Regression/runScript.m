@@ -4,11 +4,18 @@ display('Running Bayesian Lasso');
 tic;
 stochastic = 0;
 
-noDims = 2; % Number of dimensions
-noSamples = 1000; % Number of samples
+noDims = 20; % Number of dimensions
+noSamples = 10000; % Number of samples
 
 % Create the dataset
 [X, y, trueBeta, trueSigmaSq] = generateDataset(noDims, noSamples); 
+% Splitting between training and testing
+train = 1:noSamples*0.8;
+XTrain = X(train, :);
+yTrain = y(train);
+
+XTest = X(train(end)+1:end, :);
+yTest = y(train(end)+1:end);
 
 % Running HMC, select with gradient or stochastic gradient
 prob = @likelihood;
@@ -53,11 +60,11 @@ if (stochastic)
                                 data, priorPDF, batchSize, fisher, []);
 else
     [samples, energies] = hmc(prob, initGuess, options, gradProb, ...
-                                 X, y, lambda, []);    
+                                 XTrain, yTrain, lambda, []);    
 end
     
 % Verify samples
-%generatePlots(data, samples(1:100:end,:), truePDF, priorPDF, initGuess);
+generatePlots(XTest, yTest, samples);
 rejectionAnalysis
 %generateTrajectory(data, samples, truePDF);                                                
 toc
