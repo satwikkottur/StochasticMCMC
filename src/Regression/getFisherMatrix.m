@@ -18,6 +18,9 @@ function fisher = getFisherMatrix(distribution)
             
         case 'mGaussMean'
             I = 1/variance * ones(1, noParam);
+            
+        case 'BayessianLasso'
+            I = [];
     end
     fisher = I;
 end

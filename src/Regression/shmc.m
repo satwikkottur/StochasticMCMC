@@ -62,8 +62,7 @@ while n <= nsamples
 
   xold = x;		    % Store starting position.
   pold = p;		    % Store starting momenta
-  Hold = Eold + 0.5*(p*p'); % Recalculate Hamiltonian as momenta have changed
-
+  
     % Choose a direction at random
     if (rand < 0.5)
         direction = -1;
@@ -75,10 +74,10 @@ while n <= nsamples
 
   % First half-step of leapfrog.
   % Pick a batch for stochastic gradient
-  batchInds = randi(length(yData), batchSize);
+  batchInds = randi(length(yData), [batchSize 1]);
   XBatch = XData(batchInds, :);
   yBatch = yData(batchInds);
-  
+    
   gradient = feval(gradf, x, XBatch, yBatch, lambda, abs(epsilon/2), length(yData)) ...
                                 - 0.5 * epsilon * (p.* C) + ...
                                 0.5 * mvnrnd(zeroMu, 2 * incB * abs(epsilon), 1);
@@ -91,69 +90,100 @@ while n <= nsamples
   
   % Full leapfrog steps.
   for m = 1 : L - 1
+      % Pick a batch for stochastic gradient
+      batchInds = randi(length(yData), [batchSize 1]);
+      XBatch = XData(batchInds, :);
+      yBatch = yData(batchInds);
+      
       gradient = feval(gradf, x, XBatch, yBatch, lambda, abs(epsilon), length(yData)) ...
                                 - epsilon * (p.*C) + ...
                                    mvnrnd(zeroMu, 2*incB * abs(epsilon), 1);
     p = p - epsilon* gradient;
     x = x + epsilon*p;
+    
+    % Variance non-negative
+    if(x(end) < 0)
+       error('Variance negative') 
+    end
   end
   
-  % Final half-step of leapfrog.
+      % Pick a batch for stochastic gradient
+      batchInds = randi(length(yData), [batchSize 1]);
+      XBatch = XData(batchInds, :);
+      yBatch = yData(batchInds);
+      % Final half-step of leapfrog.
      gradient = feval(gradf, x, XBatch, yBatch, lambda, abs(epsilon/2), length(yData)) ...
                                 - 0.5 * epsilon * (p.* C) + ...
                                 0.5 * mvnrnd(zeroMu, 2 * incB * abs(epsilon), 1);
                             
     p = p - 0.5*epsilon*gradient;
-    
-  % Now apply Metropolis algorithm.
-  Enew = feval(f, x, data, priorPDF, varargs);	% Evaluate new energy.
-  p = -p;				% Negate momentum
-  Hnew = Enew + 0.5*p*p';		% Evaluate new Hamiltonian.
-  a = exp(Hold - Hnew);			% Acceptance threshold.
 
-  metropolis  = 1;
-  if(~metropolis)
-      Eold = Enew;			% Update energy
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  metropolis = 0;
+  switch metropolis
+      case 0
         if (display > 0)
           fprintf(1, 'Finished step %4d  Threshold: %g\n', n, a);
         end
-  else
-    batchSize = 30;
-    [accept, entireBatch] = ...
-            modifiedMH(data, x, xold, p, pold, batchSize, 0.05, priorPDF);
-        
-    noCount = noCount + entireBatch; 
-      
-      
-      % Pass through true MH
-    if(entireBatch)
+            
+      case 1
         %Simple metropolis
-      random_number = rand(1);
-      if a > random_number			% Accept the new state.
-        Eold = Enew;			% Update energy
-        if (display > 0)
-          fprintf(1, 'Finished step %4d  Threshold: %g\n', n, a);
-        end
-      else					% Reject the new state.
-        if n > 0 
-          nreject = nreject + 1;
-        end
-        x = xold;				% Reset position 
-        p = pold;   			% Reset momenta
-        if (display > 0)
-          fprintf(1, '  Sample rejected %4d.  Threshold: %g\n', n, a);
-        end
-      end
-    else
-    
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-        if accept			% Accept the new state.
-            Eold = Enew;			% Update energy
+        % Now apply Metropolis algorithm.
+          Enew = feval(f, x, XData, yData, lambda);	% Evaluate new energy.
+          Eold = feval(f, xold, XData, yData, lambda);	% Evaluate new energy.
+          p = -p;				% Negate momentum
+          Hnew = Enew + 0.5*(p*p');		% Evaluate new Hamiltonian.
+          Hold = Eold + 0.5*(p*p'); % Recalculate Hamiltonian as momenta have changed
+          a = exp(Hold - Hnew);			% Acceptance threshold.
+          random_number = rand(1);
+          if a > random_number			% Accept the new state.
             if (display > 0)
               fprintf(1, 'Finished step %4d  Threshold: %g\n', n, a);
             end
-        else					% Reject the new state.
+          else					% Reject the new state.
+            if n > 0 
+              nreject = nreject + 1;
+            end
+            x = xold;				% Reset position 
+            p = pold;   			% Reset momenta
+            if (display > 0)
+              fprintf(1, '  Sample rejected %4d.  Threshold: %g\n', n, a);
+            end
+          end  
+      
+      case 2
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        % Batch based metropolis hastings
+        % Function signature
+        % accept = modifiedMH(data, curSample, prevSample, curP, ...
+        %                        prevP, batchSize, threshold, priorPDF);
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        batchSize = 30;
+        [accept, entireBatch] = ...
+                modifiedMH(XData, yData, x, xold, p, pold, lambda, batchSize, 0.1);
+
+        noCount = noCount + entireBatch; 
+
+        % Pass through true MH
+        if(entireBatch)
+            % Now apply Metropolis algorithm.
+          Eold = feval(f, xold, XData, yData, lambda);	% Evaluate old energy.
+          Enew = feval(f, x, XData, yData, lambda);	% Evaluate new energy.
+          p = -p;				% Negate momentum
+          Hold = Eold + 0.5 * (pold * pold');
+          Hnew = Enew + 0.5*(p*p');		% Evaluate new Hamiltonian.
+          a = exp(Hold - Hnew);			% Acceptance threshold.
+            %Simple metropolis
+          random_number = rand(1);
+          if a > random_number			% Accept the new state.
+            accept = true;
+          else
+              accept = false; % Reject the new state.
+          end
+        end
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        
+        if ~accept			% Accept the new state.
             if n > 0 
               nreject = nreject + 1;
             end
@@ -163,27 +193,32 @@ while n <= nsamples
               fprintf(1, '  Sample rejected %4d.  Threshold: %g\n', n, a);
             end    
         end
-    end
   end
   
-  if n > 0
-    samples(n,:) = x;			% Store sample.
-    if en_save 
-      energies(n) = Eold;		% Store energy.
-    end
-  end
+      if n > 0
+        samples(n,:) = x;			% Store sample.
+        if en_save 
+          energies(n) = Eold;		% Store energy.
+        end
+      end
 
-  % Set momenta for next iteration
-  p = randn(1, nparams);	% Replace all momenta.
-  n = n + 1;
+
+
+      % Set momenta for next iteration
+      if(rem(n, 50) == 0)
+            p = randn(1, nparams);	% Replace all momenta.
+      else
+          p = -p;
+        % Adjust momenta by a small random amount.
+          p = alpha.*p + salpha.*randn(1, nparams);
+      end
+      %p = randn(1, nparams);	% Replace all momenta.
+
+      n = n + 1;
 end
 
 %if (display > 0)
   fprintf(1, '\nFraction of samples rejected:  %g\n', ...
     nreject/(nsamples));
 %end
-  diagn.pos = diagn_pos;
-  diagn.mom = diagn_mom;
-  diagn.acc = diagn_acc;
-
 return

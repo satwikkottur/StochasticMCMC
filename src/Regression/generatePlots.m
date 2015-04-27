@@ -11,9 +11,9 @@ function generatePlots(XTest, yTest, samples)
     RSMEMedian = rms(yTest - XTest * median(samples(:, 1:end-1))') ...
                                         / sqrt(median(samples(:, end)));
     
-    burnIn = 10000;
-    skip = 100;
-    RSME = RSME(burnIn:skip:end);
+    burnIn = 0;
+    skip = 50;
+    RSME = RSME(burnIn+1:skip:end);
     % Plotting the RSME for all the samples
     figure; hold all
         plot(RSME)
@@ -21,4 +21,9 @@ function generatePlots(XTest, yTest, samples)
         plot(RSMEMedian * (ones(1, length(RSME))));        
         axis 'tight'
     hold off
+    
+    figure; 
+        sparsity = sum(samples == 0, 2);
+        plot(sparsity(1:skip:end))
+    
 end

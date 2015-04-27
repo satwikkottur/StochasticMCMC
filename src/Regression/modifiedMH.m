@@ -45,7 +45,7 @@ function [accept, entireBatch] = modifiedMH(X, y, nextSample, curSample, ...
         else
             accept = false;
             entireBatch = 1;
-            %fprintf('Entire batch used for MH\n');
+            % fprintf('Entire batch used for MH\n');
             return
             %error('Entire data used for MH test');
         end
@@ -96,7 +96,7 @@ function [accept, entireBatch] = modifiedMH(X, y, nextSample, curSample, ...
     entireBatch = 0;
     %fprintf('************************ Modified MH successful\n');
     % Debugging message
-    %if(curBatchSize ~= 30)
-       %fprintf('Modified MH (%d) used : %d / %d \n', accept, curBatchSize, n);
-    %end
+    if(curBatchSize > 90)
+       fprintf('Modified MH (%d) used : %d / %d \n', accept, curBatchSize, n);
+    end
 end
