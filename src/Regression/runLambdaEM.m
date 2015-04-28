@@ -64,7 +64,7 @@ function [lambda] = runLambdaEM(initLambda, XVal, yVal)
         sampleL1 = sum(abs(samples(:, 1:end-1)), 2);
         lambda = noDims / mean(sampleL1 ./ sqrt(samples(:, end)));
         
-        fprintf('\n====================\nNew lambda : %f\n\n', lambda);
+        %fprintf('\n====================\nNew lambda : %f\n\n', lambda);
         % Setting up the initial point
         initGuess = samples(end, :);
     end

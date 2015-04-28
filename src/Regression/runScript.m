@@ -28,8 +28,8 @@ yTest = yTest(2:2:end);
 
 initLambda = 0.1;
 lambda = runLambdaEM(initLambda, XVal, yVal);
-lambda
-return
+
+fprintf('Lambda changed from %f to %f \n', initLambda, lambda);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Running HMC, select with gradient or stochastic gradient
 prob = @likelihood;
