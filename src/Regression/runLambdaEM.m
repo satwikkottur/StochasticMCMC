@@ -62,7 +62,7 @@ function [lambda] = runLambdaEM(initLambda, XVal, yVal)
 
         % Estimate the value of lambda empirically
         sampleL1 = sum(abs(samples(:, 1:end-1)), 2);
-        lambda = noDims / sum(sampleL1 ./ sqrt(samples(:, end)));
+        lambda = noDims / mean(sampleL1 ./ sqrt(samples(:, end)));
         
         fprintf('\n====================\nNew lambda : %f\n\n', lambda);
         % Setting up the initial point
