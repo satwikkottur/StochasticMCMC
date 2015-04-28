@@ -9,14 +9,28 @@ noSamples = 10000; % Number of samples
 
 % Create the dataset
 [X, y, trueBeta, trueSigmaSq] = generateDataset(noDims, noSamples); 
-% Splitting between training and testing
-train = 1:noSamples*0.8;
+
+% Splitting between training, validation and testing
+train = 1:noSamples * 0.6;
 XTrain = X(train, :);
 yTrain = y(train);
 
 XTest = X(train(end)+1:end, :);
 yTest = y(train(end)+1:end);
 
+% Splitting for validation
+
+XValid = XTest(1:2:end, :);
+yValid = yTest(1:2:end);
+XTest = XTest(2:2:end, :);
+yTest = yTest(2:2:end);
+
+lambda = runEM(lambda0, XValid, yValid);
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% EM for lambda
+XValid = 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Running HMC, select with gradient or stochastic gradient
 prob = @likelihood;
 if (stochastic)
