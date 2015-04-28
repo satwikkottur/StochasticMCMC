@@ -12,3 +12,9 @@ fprintf('sparsity %f\n', sum(abs(bRidge) < sparsityCutoff)/length(bRidge))
 MSE = sum((XTest * bRidge - yTest).^2);
 MSE
 fprintf('%s = %f\n', 'MSE/sigmaSq', MSE/(trueSigmaSq));
+
+% Using 3rd party bayesian lasso package
+otherB = bayes_lasso_generic(XTrain, yTrain);
+
+% Computing the errors
+generatePlots(XTest, yTest, otherB, sigmaYes, sparsityCutoff);
