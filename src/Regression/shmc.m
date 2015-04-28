@@ -52,7 +52,7 @@ zeroMu = zeros(1, length(fisher));
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%        
 
 % Main loop.
-noCount = 0
+noCount = 0;
 
 while n <= nsamples
     % Printing for every 1000 iters
@@ -119,7 +119,7 @@ while n <= nsamples
     p = p - 0.5*epsilon*gradient;
 
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  metropolis = 1;
+  metropolis = 0;
   switch metropolis
       case 0
         if (display > 0)

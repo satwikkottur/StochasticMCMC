@@ -12,7 +12,7 @@ function [X, y, beta, sigmaSq] = generateDataset(noDims, noSamples)
     %X = mvnrnd(zeros(noDims, 1), ones(1, noDims), noSamples);
     
     % Making few entries of X zeros
-    fraction = 0.01;
+    fraction = 0.1;
     rows = randi(noSamples, [noSamples * noDims * fraction, 1]);
     cols = randi(noDims, [noSamples * noDims * fraction, 1]);
     vals = randn(noSamples * noDims * fraction, 1);

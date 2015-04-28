@@ -4,18 +4,18 @@ display('Running Bayesian Lasso');
 tic;
 stochastic = 1;
 
-noDims = 1000; % Number of dimensions
+noDims = 300; % Number of dimensions
 noSamples = 10000; % Number of samples
 
 % Create the dataset
-% [X, y, trueBeta, trueSigmaSq] = generateDataset(noDims, noSamples); 
-% % Splitting between training and testing
-% train = 1:noSamples*0.8;
-% XTrain = X(train, :);
-% yTrain = y(train);
-% 
-% XTest = X(train(end)+1:end, :);
-% yTest = y(train(end)+1:end);
+[X, y, trueBeta, trueSigmaSq] = generateDataset(noDims, noSamples); 
+% Splitting between training and testing
+train = 1:noSamples*0.8;
+XTrain = X(train, :);
+yTrain = y(train);
+
+XTest = X(train(end)+1:end, :);
+yTest = y(train(end)+1:end);
 
 % Running HMC, select with gradient or stochastic gradient
 prob = @likelihood;
@@ -54,7 +54,7 @@ fisher = zeros(1, noDims+1);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 initGuess = rand(1, noDims + 1);
-lambda = 1000000000;
+lambda = 10;
 
 % Stochastic
 if (stochastic)
@@ -66,7 +66,10 @@ else
 end
     
 % Verify samples
-generatePlots(XTest, yTest, samples);
+sparsityCutoff = 1e-3;
+generatePlots(XTest, yTest, samples,1, sparsityCutoff);
+generatePlots(XTest, yTest, samples, 0, sparsityCutoff);
 rejectionAnalysis
+Lasso
 %generateTrajectory(data, samples, truePDF);                                                
 toc
