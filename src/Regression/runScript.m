@@ -19,22 +19,21 @@ XTest = X(train(end)+1:end, :);
 yTest = y(train(end)+1:end);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% EM for lambda
-% Splitting for validation
-XVal = XTest(1:2:end, :);
-yVal = yTest(1:2:end);
-XTest = XTest(2:2:end, :);
-yTest = yTest(2:2:end);
-
-initLambda = 0.1;
-lambda = runLambdaEM(initLambda, XVal, yVal);
-lambda
-return
+% % EM for lambda
+% % Splitting for validation
+% XVal = XTest(1:2:end, :);
+% yVal = yTest(1:2:end);
+% XTest = XTest(2:2:end, :);
+% yTest = yTest(2:2:end);
+% 
+% initLambda = 0.1;
+% lambda = runLambdaEM(initLambda, XVal, yVal);
+lambda=6;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Running HMC, select with gradient or stochastic gradient
 prob = @likelihood;
 if (stochastic)
-    gradProb = @stocGradLikelihood;
+    gradProb = @stocGradLikelihoodSmooth;
 else
     gradProb = @gradLikelihood;
 end

@@ -30,15 +30,7 @@ function gradient = stocGradLikelihood(theta, XBatch, yBatch, lambda, steplength
     smoother = 1e-6;
     
     vec = lambda * beta / (sqrt(sigmaSq) * smoother);
-    grad = 
+    alpha_star = vec .* (abs(vec) < 1)  + sign(vec) .* (abs(vec) >= 1);
+    gradient(1:end-1) = gradF + lambda / sqrt(sigmaSq) * alpha_star;
     
-    % Proximal gradient (after taking step wrt f)
-    newBeta = beta - steplength * gradF;
-    constant = steplength * lambda / sqrt(sigmaSq);
-    
-    % Computing the proximal gradient
-    proxBeta = (newBeta < -constant) .* (newBeta + constant) + ...
-                (newBeta > constant) .* (newBeta - constant);
-    
-    gradient(1:end-1) = (beta - proxBeta) / steplength;
 end
