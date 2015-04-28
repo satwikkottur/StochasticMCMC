@@ -96,10 +96,10 @@ while n <= nsamples
     metropolis = 0;
   switch metropolis
       case 0
-        Eold = Enew;			% Update energy
-            if (display > 0)
-              fprintf(1, 'Finished step %4d  Threshold: %g\n', n, a);
-            end
+        %Eold = Enew;			% Update energy
+        if (display > 0)
+          fprintf(1, 'Finished step %4d  Threshold: %g\n', n, a);
+        end
             
       case 1
         %Simple metropolis

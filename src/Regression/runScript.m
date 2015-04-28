@@ -18,18 +18,18 @@ yTrain = y(train);
 XTest = X(train(end)+1:end, :);
 yTest = y(train(end)+1:end);
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% EM for lambda
 % Splitting for validation
-
-XValid = XTest(1:2:end, :);
-yValid = yTest(1:2:end);
+XVal = XTest(1:2:end, :);
+yVal = yTest(1:2:end);
 XTest = XTest(2:2:end, :);
 yTest = yTest(2:2:end);
 
-lambda = runEM(lambda0, XValid, yValid);
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% EM for lambda
-XValid = 
+initLambda = 0.1;
+lambda = runLambdaEM(initLambda, XVal, yVal);
+lambda
+return
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Running HMC, select with gradient or stochastic gradient
 prob = @likelihood;

@@ -38,15 +38,15 @@ function B = bayesian_lasso_generic(X,Y)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 iNum_regressors = size(X,2);
-n = size(Y,1) % length of Y
-p = size(X,2) % length of beta
+n = size(Y,1); % length of Y
+p = size(X,2); % length of beta
 %% Bayesian LASSO (Park and Castella 2008)
 iNumIter = 1000;
 
 %% Initialize variables
-tau = 0.1
-D_tau = diag(repmat(1,1,size(X,2))*tau)
-sigma_squared = 0.1
+tau = 0.1;
+D_tau = diag(repmat(1,1,size(X,2))*tau);
+sigma_squared = 0.1;
 
 
 %% Lambda
@@ -96,7 +96,7 @@ for iCount = 1:iNumIter
 end
 
 %% return posterior
-B = beta_posterior
+B = beta_posterior;
 
 %% plot histograms
 if iNum_regressors == 5
@@ -123,7 +123,7 @@ if iNum_regressors == 5
     print(figID, '-djpeg', sprintf('BayesianLASSO_parameters_hist%s.jpg', date));
     
     %% plot Monte Carlo trace plots
-    figID_2 = figure
+    figID_2 = figure;
     plot(beta_posterior(1:end,1))
     xlabel('Monte Carlo samples'); ylabel('Posterior of one regressor parameter')
     print(figID_2, '-djpeg', sprintf('mcmctrace_%s.jpg', date));
