@@ -19,18 +19,18 @@ XTest = X(train(end)+1:end, :);
 yTest = y(train(end)+1:end);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-lambda = 6;
+%lambda = 6;
 % EM for lambda
 % Splitting for validation
-%XVal = XTest(1:2:end, :);
-%yVal = yTest(1:2:end);
+XVal = XTest(1:2:end, :);
+yVal = yTest(1:2:end);
 XTest = XTest(2:2:end, :);
 yTest = yTest(2:2:end);
 
-%initLambda = 0.1;
-%lambda = runLambdaEM(initLambda, XVal, yVal);
+initLambda = 0.1;
+lambda = runLambdaEM(initLambda, XVal, yVal);
 
-%fprintf('Lambda changed from %f to %f \n', initLambda, lambda);
+fprintf('Lambda changed from %f to %f \n', initLambda, lambda);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Running HMC, select with gradient or stochastic gradient
 prob = @likelihood;
@@ -43,7 +43,7 @@ end
 % Initializing the options (manually done checking the code in hmc)
 options = -1 * ones(18, 1);
 options(9) = 0; % false
-options(14) = 100000; % Run for 50000 iterations
+options(14) = 200000; % Run for 50000 iterations
 options(15) = 20000; % burn in
 options(7) = 5; % Number of leap steps
 options(1) = 0; % Display 
@@ -88,3 +88,4 @@ rejectionAnalysis
 Lasso
 %generateTrajectory(data, samples, truePDF);                                                
 toc
+save('samples.mat')
