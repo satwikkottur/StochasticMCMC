@@ -18,9 +18,9 @@ function [lambda] = runLambdaEM(initLambda, XVal, yVal)
     % Initializing the options (manually done checking the code in hmc)
     options = -1 * ones(18, 1);
     options(9) = 0; % false
-    options(14) = 10000; % Run for 50000 iterations
-    options(15) = 1000; % burn in
-    options(7) = 5; % Number of leap steps
+    options(14) = 5000; % Run for 50000 iterations
+    options(15) = 500; % burn in
+    options(7) = 50; % Number of leap steps
     options(1) = 0; % Display 
     options(18) = 1e-4; %step size
 
