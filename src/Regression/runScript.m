@@ -39,7 +39,6 @@ yVal = yTrain(validData);
 XTrain = XTrain(~validData, :);
 yTrain = yTrain(~validData);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 %lambda = 6;
 % EM for lambda
 % Splitting for validation
@@ -65,7 +64,7 @@ end
 % Initializing the options (manually done checking the code in hmc)
 options = -1 * ones(18, 1);
 options(9) = 0; % false
-options(14) = 100000; % Run for 50000 iterations
+options(14) = 200000; % Run for 50000 iterations
 options(15) = 20000; % burn in
 options(7) = 2; % Number of leap steps
 options(1) = 0; % Display 
@@ -110,3 +109,4 @@ rejectionAnalysis
 Lasso
 %generateTrajectory(data, samples, truePDF);                                                
 toc
+save('samples.mat')
