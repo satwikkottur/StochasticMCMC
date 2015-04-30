@@ -75,9 +75,9 @@ end
 % Initializing the options (manually done checking the code in hmc)
 options = -1 * ones(18, 1);
 options(9) = 0; % false
-options(14) = 200000; % Run for 50000 iterations
-options(15) = 20000; % burn in
-options(7) = 2; % Number of leap steps
+options(14) = 5000;%100000; % Run for 50000 iterations
+options(15) = 5000; % burn in
+options(7) = 50; % Number of leap steps
 options(1) = 0; % Display 
 options(18) = 1e-4; %step size
 
@@ -118,6 +118,7 @@ generatePlots(XTest, yTest, samples,1, sparsityCutoff);
 generatePlots(XTest, yTest, samples, 0, sparsityCutoff);
 rejectionAnalysis
 Lasso
+CredibleIntervals
 %generateTrajectory(data, samples, truePDF);                                                
 toc
-save('samples.mat')
+% save('samples.mat')
