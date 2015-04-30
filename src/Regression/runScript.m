@@ -18,26 +18,37 @@ stochastic = 0;
 % XTest = X(train(end)+1:end, :);
 % yTest = y(train(end)+1:end);
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Reading the lib linear dataset
 addpath('/Users/skottur/CMU/Sem2/graphicalModels/liblinear-1.96/matlab/');
-dataPath = '/Users/skottur/CMU/Sem2/graphicalModels/Datasets/cpusmall/train.txt';
-[yTrain, XTrain] = libsvmread(dataPath);
+dataPath = '/Users/skottur/CMU/Sem2/graphicalModels/Datasets/cpusmall';
+% [yTrain, XTrain] = libsvmread(fullfile(dataPath, 'train.txt'));
+% 
+% noDims = size(XTrain, 2);
+% noSamples = size(XTrain, 1);
+% 
+% [yTest, XTest] = libsvmread(fullfile(dataPath, 'test.txt'));
+% 
+% % Splitting for validation data
+% fraction = 0.1;
+% validData = rand(noSamples, 1) < fraction;
+% XVal = XTrain(validData, :);
+% yVal = yTrain(validData);
+% 
+% XTrain = XTrain(~validData, :);
+% yTrain = yTrain(~validData);
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Standardizing the data
+%standardize;
+
+[yTrain, XTrain] = libsvmread(fullfile(dataPath, 'trainStand.txt'));
+[yTest, XTest] = libsvmread(fullfile(dataPath, 'testStand.txt'));
+[yVal, XVal] = libsvmread(fullfile(dataPath, 'valStand.txt'));
 
 noDims = size(XTrain, 2);
 noSamples = size(XTrain, 1);
 
-dataPath = '/Users/skottur/CMU/Sem2/graphicalModels/Datasets/cpusmall/test.txt';
-[yTest, XTest] = libsvmread(dataPath);
-
-% Splitting for validation data
-fraction = 0.1;
-validData = rand(noSamples, 1) < fraction;
-XVal = XTrain(validData, :);
-yVal = yTrain(validData);
-
-XTrain = XTrain(~validData, :);
-yTrain = yTrain(~validData);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %lambda = 6;
 % EM for lambda
