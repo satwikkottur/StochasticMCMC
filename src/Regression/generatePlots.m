@@ -2,42 +2,43 @@ function generatePlots(XTest, yTest, samples, sigmaYes, sparsityCutOff)
     % Generating some plots of true sampling and posterior sampling
     if (sigmaYes)
         % Root mean squared error (samples are row vectors)
-        RSME = sum((bsxfun(@minus, XTest * samples(:, 1:end-1)', yTest)).^2)...
+        RMSE = sum((bsxfun(@minus, XTest * samples(:, 1:end-1)', yTest)).^2)...
                                                     ./ (samples(:, end))';
 
 
 
-        RSMEMean = sum((yTest - XTest * mean(samples(:, 1:end-1))').^2)...
+        RMSEMean = sum((yTest - XTest * mean(samples(:, 1:end-1))').^2)...
                                             / (mean(samples(:, end)));
 
-        RSMEMedian = sum((yTest - XTest * median(samples(:, 1:end-1))').^2) ...
+        RMSEMedian = sum((yTest - XTest * median(samples(:, 1:end-1))').^2) ...
                                             / (median(samples(:, end)));
 
                                     
     else
         % Root mean squared error (samples are row vectors)
-        RSME = sum((bsxfun(@minus, XTest * samples(:, 1:end-1)', yTest)).^2);
+        RMSE = sum((bsxfun(@minus, XTest * samples(:, 1:end-1)', yTest)).^2);
 
 
 
-        RSMEMean = sum((yTest - XTest * mean(samples(:, 1:end-1))').^2)
+        RMSEMean = sum((yTest - XTest * mean(samples(:, 1:end-1))').^2);
 
-        RSMEMedian = sum((yTest - XTest * median(samples(:, 1:end-1))').^2)
+        RMSEMedian = sum((yTest - XTest * median(samples(:, 1:end-1))').^2);
+        fprintf('MSE for Mean: %d \n', RMSEMean);
+        fprintf('MSE for Median: %d \n', RMSEMedian);
     end
     
     burnIn = 0;
     skip = 10;
-    RSME = RSME(burnIn+1:skip:end);
-    size(RSME)
+    RMSE = RMSE(burnIn+1:skip:end);
     % Plotting the RSME for all the samples
     figure; hold all
         title(sigmaYes)
-        plot(RSME)
+        plot(RMSE)
         %axis 'tight'
     %hold off
     %figure; hold all;
-        plot(RSMEMean * (ones(1, length(RSME))));        
-        plot(RSMEMedian * (ones(1, length(RSME))));        
+        plot(RMSEMean * (ones(1, length(RMSE))));        
+        plot(RMSEMedian * (ones(1, length(RMSE))));        
     hold off;
     if (sigmaYes)
         figure; 

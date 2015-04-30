@@ -93,7 +93,7 @@ while n <= nsamples
 
   
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    metropolis = 0;
+    metropolis = 1;
   switch metropolis
       case 0
         %Eold = Enew;			% Update energy

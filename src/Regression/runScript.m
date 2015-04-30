@@ -2,35 +2,57 @@
 %close all
 display('Running Bayesian Lasso');
 tic;
-stochastic = 1;
+stochastic = 0;
 
-noDims = 300; % Number of dimensions
-noSamples = 10000; % Number of samples
+% noDims = 300; % Number of dimensions
+% noSamples = 10000; % Number of samples
+% 
+% % Create the dataset
+% [X, y, trueBeta, trueSigmaSq] = generateDataset(noDims, noSamples); 
+% 
+% % Splitting between training, validation and testing
+% train = 1:noSamples * 0.6;
+% XTrain = X(train, :);
+% yTrain = y(train);
+% 
+% XTest = X(train(end)+1:end, :);
+% yTest = y(train(end)+1:end);
 
-% Create the dataset
-[X, y, trueBeta, trueSigmaSq] = generateDataset(noDims, noSamples); 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Reading the lib linear dataset
+addpath('/Users/skottur/CMU/Sem2/graphicalModels/liblinear-1.96/matlab/');
+dataPath = '/Users/skottur/CMU/Sem2/graphicalModels/Datasets/cpusmall/train.txt';
+[yTrain, XTrain] = libsvmread(dataPath);
 
-% Splitting between training, validation and testing
-train = 1:noSamples * 0.6;
-XTrain = X(train, :);
-yTrain = y(train);
+noDims = size(XTrain, 2);
+noSamples = size(XTrain, 1);
 
-XTest = X(train(end)+1:end, :);
-yTest = y(train(end)+1:end);
+dataPath = '/Users/skottur/CMU/Sem2/graphicalModels/Datasets/cpusmall/test.txt';
+[yTest, XTest] = libsvmread(dataPath);
 
+% Splitting for validation data
+fraction = 0.1;
+validData = rand(noSamples, 1) < fraction;
+XVal = XTrain(validData, :);
+yVal = yTrain(validData);
+
+XTrain = XTrain(~validData, :);
+yTrain = yTrain(~validData);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-lambda = 6;
+
+%lambda = 6;
 % EM for lambda
 % Splitting for validation
 %XVal = XTest(1:2:end, :);
 %yVal = yTest(1:2:end);
-XTest = XTest(2:2:end, :);
-yTest = yTest(2:2:end);
+%XTest = XTest(2:2:end, :);
+%yTest = yTest(2:2:end);
 
-%initLambda = 0.1;
+initLambda = 0.6;
+%lambda = 0.6;
 %lambda = runLambdaEM(initLambda, XVal, yVal);
 
-%fprintf('Lambda changed from %f to %f \n', initLambda, lambda);
+%fprintf('Lambda changed from %f to %f \n\n\n', initLambda, lambda);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Running HMC, select with gradient or stochastic gradient
 prob = @likelihood;
@@ -45,7 +67,7 @@ options = -1 * ones(18, 1);
 options(9) = 0; % false
 options(14) = 100000; % Run for 50000 iterations
 options(15) = 20000; % burn in
-options(7) = 5; % Number of leap steps
+options(7) = 2; % Number of leap steps
 options(1) = 0; % Display 
 options(18) = 1e-4; %step size
 

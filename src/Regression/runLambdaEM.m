@@ -44,12 +44,13 @@ function [lambda] = runLambdaEM(initLambda, XVal, yVal)
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     % Number of EM iteration
-    noIters = 15;
+    noIters = 50; % Max of 100 iterations
     
     lambda = initLambda;
     initGuess = rand(1, noDims + 1);
     
     for i = 1:noIters
+        prevLambda = lambda;
         % Running HMC, select with gradient or stochastic gradient
         % Stochastic
         if (stochastic)
@@ -64,9 +65,14 @@ function [lambda] = runLambdaEM(initLambda, XVal, yVal)
         sampleL1 = sum(abs(samples(:, 1:end-1)), 2);
         lambda = noDims / mean(sampleL1 ./ sqrt(samples(:, end)));
         
-        %fprintf('\n====================\nNew lambda : %f\n\n', lambda);
+        fprintf('\n====================\nNew lambda : %f\n\n', lambda);
         % Setting up the initial point
         initGuess = samples(end, :);
+        
+        % Convergence test (break)
+        if(abs(prevLambda - lambda) < 1e-2)
+            break
+        end
     end
 end
 
