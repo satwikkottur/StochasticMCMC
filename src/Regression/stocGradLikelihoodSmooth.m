@@ -32,5 +32,4 @@ function gradient = stocGradLikelihood(theta, XBatch, yBatch, lambda, steplength
     vec = lambda * beta / (sqrt(sigmaSq) * smoother);
     alpha_star = vec .* (abs(vec) < 1)  + sign(vec) .* (abs(vec) >= 1);
     gradient(1:end-1) = gradF + lambda / sqrt(sigmaSq) * alpha_star;
-    
 end

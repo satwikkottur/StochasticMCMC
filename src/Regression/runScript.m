@@ -21,18 +21,19 @@ stochastic = 1;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Reading the lib linear dataset
 addpath('/Users/skottur/CMU/Sem2/graphicalModels/liblinear-1.96/matlab/');
+
+% Datasets
 %dataPath = '/Users/skottur/CMU/Sem2/graphicalModels/Datasets/cpusmall';
 dataPath = '/Users/skottur/CMU/Sem2/graphicalModels/Datasets/diabetes';
-%[yTrain, XTrain] = libsvmread(fullfile(dataPath, 'train.txt'));
+%dataPath = '/Users/skottur/CMU/Sem2/graphicalModels/Datasets/cadata';
 
-%noDims = size(XTrain, 2);
-%noSamples = size(XTrain, 1);
+% [yTrain, XTrain] = libsvmread(fullfile(dataPath, 'train.txt'));
+% [yTest, XTest] = libsvmread(fullfile(dataPath, 'test.txt'));
+% [yVal, XVal] = libsvmread(fullfile(dataPath, 'val.txt'));
 
-%[yTest, XTest] = libsvmread(fullfile(dataPath, 'test.txt'));
+% noDims = size(XTrain, 2);
+% noSamples = size(XTrain, 1);
 
-%[yVal, XVal] = libsvmread(fullfile(dataPath, 'val.txt'));
-
-% 
 % % Splitting for validation data
 % fraction = 0.2;
 % validData = rand(noSamples, 1) < fraction;
@@ -52,7 +53,7 @@ dataPath = '/Users/skottur/CMU/Sem2/graphicalModels/Datasets/diabetes';
 
 noDims = size(XTrain, 2);
 noSamples = size(XTrain, 1);
-
+return
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %lambda = 6;
 % EM for lambda
@@ -73,6 +74,7 @@ lambda = 1.1; % For diabetes
 prob = @likelihood;
 if (stochastic)
     gradProb = @stocGradLikelihoodSmooth;
+    %gradProb = @stocGradLikelihoodSmooth;
 else
     gradProb = @gradLikelihood;
 end
