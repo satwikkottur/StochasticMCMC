@@ -1,7 +1,7 @@
 %% Running the inbuilt MATLAB Lasso
 fprintf('\n\nLasso\n');
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-lassoLambda = 1;
+%lassoLambda = 1;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 bLasso = lasso(XTrain, yTrain, 'Lambda', lassoLambda);
 fprintf('sparsity %f\n', sum(abs(bLasso) < sparsityCutoff)/length(bLasso))
@@ -13,7 +13,7 @@ fprintf('%s = %d\n', 'MSE', MSE);
 %%
 fprintf('\n\nRigde Regression\n');
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-lambdaRidge = 0.00001;
+%lambdaRidge = 0.00001;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 bRidge = ridge(yTrain, XTrain, lambdaRidge);
 fprintf('sparsity %f\n', sum(abs(bRidge) < sparsityCutoff)/length(bRidge))

@@ -34,16 +34,13 @@ function generatePlots(XTest, yTest, samples, sigmaYes, sparsityCutOff)
     figure; hold all
         title(sigmaYes)
         plot(RMSE)
-        %axis 'tight'
-    %hold off
-    %figure; hold all;
         plot(RMSEMean * (ones(1, length(RMSE))));        
         plot(RMSEMedian * (ones(1, length(RMSE))));        
     hold off;
-    if (sigmaYes)
-        figure; 
-            sparsity = sum(abs(samples) < sparsityCutOff, 2);
-            plot(sparsity(1:skip:end))
-            title('Sparsity')
-    end
+%     if (sigmaYes)
+%         figure; 
+%             sparsity = sum(abs(samples) < sparsityCutOff, 2);
+%             plot(sparsity(1:skip:end))
+%             title('Sparsity')
+%     end
 end
